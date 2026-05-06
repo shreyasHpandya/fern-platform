@@ -505,6 +505,87 @@
 
   .r-actions .gh-link:hover { color: var(--moss-bright); }
 
+  /* ============== GATE SCREEN ============== */
+  .screen-gate {
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .gate-score-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.5);
+    margin-bottom: 12px;
+  }
+
+  .gate-score {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(96px, 14vw, 200px);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--moss-bright);
+    margin-bottom: 24px;
+  }
+
+  .gate-score .total {
+    color: rgba(244, 239, 230, 0.4);
+    font-size: 0.42em;
+    margin-left: 8px;
+  }
+
+  .gate-message {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(22px, 2.6vw, 34px);
+    line-height: 1.35;
+    color: var(--paper);
+    max-width: 640px;
+    margin: 0 auto 24px;
+  }
+
+  .gate-message.locked { color: var(--gold); }
+
+  .gate-action {
+    margin: 8px 0 24px;
+    min-height: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .gate-countdown {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.55);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .gate-countdown .time {
+    font-family: var(--mono);
+    font-size: 26px;
+    color: var(--moss-bright);
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+
+  .gate-attempts {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.4);
+  }
+
   /* ============== RESPONSIVE ============== */
   @media (max-width: 900px) {
     .screen { padding: 110px 32px 100px; }
@@ -583,6 +664,20 @@
           </div>
         </div>
         <button class="btn-primary reveal reveal-5" id="btn-begin">Begin &rarr;</button>
+      </div>
+    </section>
+
+    <!-- GATE (shown when localStorage state exists) -->
+    <section class="screen screen-gate" id="screen-gate">
+      <div class="start-inner">
+        <div class="eyebrow reveal reveal-1">You&rsquo;re back.</div>
+        <div class="gate-score-label reveal reveal-2">Your last score</div>
+        <div class="gate-score reveal reveal-2">
+          <span id="gate-score">0</span><span class="total"> / 100</span>
+        </div>
+        <p class="gate-message reveal reveal-3" id="gate-message"></p>
+        <div class="gate-action reveal reveal-4" id="gate-action"></div>
+        <div class="gate-attempts reveal reveal-5" id="gate-attempts"></div>
       </div>
     </section>
 
@@ -697,10 +792,23 @@
   const WEIGHT = { easy: 10, medium: 15, hard: 25 };
   const PICK   = { easy: 3,  medium: 3,  hard: 1  };
 
+  // ============== RETRY GATE CONFIG ==============
+  const STATE_KEY      = 'fern-quiz-state';
+  const MAX_ATTEMPTS   = 4;                              // 1 initial + 3 retries
+  const STATE_TTL_MS   = 24 * 60 * 60 * 1000;            // 24h
+  const RETRY_WAITS_MS = [30 * 1000, 90 * 1000, 180 * 1000]; // before retry 1/2/3
+  const NUDGES = {
+    1: 'Play fair, friend.',
+    2: 'Be honest about it.',
+    3: 'Last try. The fern is watching.',
+    locked: "You've exhausted all retries. If you really want a goodie anyway, try flattering the booth operator."
+  };
+
   // ============== STATE ==============
   let round = [];
   let answers = [];
   let cursor = 0;
+  let cooldownTickId = null;
 
   // ============== UTIL ==============
   function shuffle(arr) {
@@ -733,14 +841,79 @@
     while (node.firstChild) node.removeChild(node.firstChild);
   }
 
+  // ============== RETRY GATE STATE ==============
+  function loadGateState() {
+    try {
+      const raw = localStorage.getItem(STATE_KEY);
+      if (!raw) return null;
+      const s = JSON.parse(raw);
+      if (!s || typeof s !== 'object') return null;
+      if (Date.now() - (s.firstPlayedAt || 0) > STATE_TTL_MS) {
+        localStorage.removeItem(STATE_KEY);
+        return null;
+      }
+      return s;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function saveGateState(s) {
+    try { localStorage.setItem(STATE_KEY, JSON.stringify(s)); }
+    catch (_) { /* localStorage unavailable; gate becomes a no-op */ }
+  }
+
+  function recordCompletedAttempt(score) {
+    const prev = loadGateState();
+    const attempts = ((prev && prev.attempts) || 0) + 1;
+    const waitIdx = attempts - 1;
+    const wait = (attempts < MAX_ATTEMPTS && waitIdx < RETRY_WAITS_MS.length)
+      ? RETRY_WAITS_MS[waitIdx] : null;
+    const next = {
+      attempts: attempts,
+      lastScore: score,
+      firstPlayedAt: (prev && prev.firstPlayedAt) || Date.now(),
+      nextAllowedAt: wait ? Date.now() + wait : null
+    };
+    saveGateState(next);
+    return next;
+  }
+
+  function gateStatus() {
+    const s = loadGateState();
+    if (!s) return { kind: 'fresh' };
+    if (s.attempts >= MAX_ATTEMPTS) return { kind: 'locked', state: s };
+    const now = Date.now();
+    if (s.nextAllowedAt && now < s.nextAllowedAt) {
+      return { kind: 'cooldown', state: s, remaining: s.nextAllowedAt - now };
+    }
+    return { kind: 'ready', state: s };
+  }
+
+  function formatRemaining(ms) {
+    const total = Math.max(0, Math.ceil(ms / 1000));
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function clearCooldownTick() {
+    if (cooldownTickId !== null) {
+      clearInterval(cooldownTickId);
+      cooldownTickId = null;
+    }
+  }
+
   // ============== SCREEN MANAGEMENT ==============
   const screens = {
     start:    document.getElementById('screen-start'),
+    gate:     document.getElementById('screen-gate'),
     question: document.getElementById('screen-question'),
     results:  document.getElementById('screen-results')
   };
 
   function showScreen(name) {
+    if (name !== 'gate') clearCooldownTick();
     Object.entries(screens).forEach(([n, e]) => {
       e.classList.toggle('active', n === name);
     });
@@ -857,8 +1030,72 @@
     rScoreEl.textContent = String(total);
     rBandEl.textContent = bandFor(total);
 
+    recordCompletedAttempt(total);
     updateProgress(round.length);
     showScreen('results');
+  }
+
+  // ============== GATE RENDER ==============
+  const gateScoreEl    = document.getElementById('gate-score');
+  const gateMessageEl  = document.getElementById('gate-message');
+  const gateActionEl   = document.getElementById('gate-action');
+  const gateAttemptsEl = document.getElementById('gate-attempts');
+
+  function renderGate() {
+    clearCooldownTick();
+    const status = gateStatus();
+    if (status.kind === 'fresh') {
+      showScreen('start');
+      return;
+    }
+
+    const s = status.state;
+    gateScoreEl.textContent = String(s.lastScore || 0);
+
+    const remainingAttempts = MAX_ATTEMPTS - s.attempts;
+    gateAttemptsEl.textContent = remainingAttempts > 0
+      ? remainingAttempts + (remainingAttempts === 1 ? ' retry left' : ' retries left')
+      : 'no retries left';
+
+    clear(gateActionEl);
+    gateMessageEl.classList.remove('locked');
+
+    if (status.kind === 'locked') {
+      gateMessageEl.textContent = NUDGES.locked;
+      gateMessageEl.classList.add('locked');
+    } else if (status.kind === 'cooldown') {
+      gateMessageEl.textContent = NUDGES[s.attempts] || NUDGES[1];
+
+      const cd = el('div', 'gate-countdown');
+      const lbl = document.createTextNode('Try again in');
+      const time = el('span', 'time');
+      time.textContent = formatRemaining(status.remaining);
+      cd.appendChild(lbl);
+      cd.appendChild(time);
+      gateActionEl.appendChild(cd);
+
+      cooldownTickId = setInterval(() => {
+        const left = (s.nextAllowedAt || 0) - Date.now();
+        if (left <= 0) {
+          renderGate(); // promotes to 'ready' and re-renders
+          return;
+        }
+        time.textContent = formatRemaining(left);
+      }, 1000);
+    } else { // ready
+      gateMessageEl.textContent = NUDGES[s.attempts] || NUDGES[1];
+      const btn = el('button', 'btn-primary');
+      btn.id = 'btn-gate-retry';
+      btn.textContent = 'Try again →';
+      btn.addEventListener('click', () => {
+        const fresh = gateStatus();
+        if (fresh.kind === 'ready' || fresh.kind === 'fresh') startRound();
+        else renderGate();
+      });
+      gateActionEl.appendChild(btn);
+    }
+
+    showScreen('gate');
   }
 
   // ============== START / RESET ==============
@@ -871,8 +1108,18 @@
     renderQuestion();
   }
 
-  document.getElementById('btn-begin').addEventListener('click', startRound);
-  document.getElementById('btn-replay').addEventListener('click', startRound);
+  function beginOrGate() {
+    if (gateStatus().kind === 'fresh') startRound();
+    else renderGate();
+  }
+
+  document.getElementById('btn-begin').addEventListener('click', beginOrGate);
+  document.getElementById('btn-replay').addEventListener('click', renderGate);
+
+  // On initial load: if state already exists, show gate instead of start
+  if (gateStatus().kind !== 'fresh') {
+    renderGate();
+  }
 
   // Keyboard shortcuts: 1-4 to pick, Enter for Next
   document.addEventListener('keydown', (e) => {
