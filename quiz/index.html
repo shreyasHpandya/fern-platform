@@ -587,6 +587,8 @@
   }
 
   /* ============== RESPONSIVE ============== */
+
+  /* Tablet: tighten padding, keep corner chrome layout */
   @media (max-width: 900px) {
     .screen { padding: 110px 32px 100px; }
     .chrome.top-left { top: 24px; left: 24px; }
@@ -595,8 +597,52 @@
     .chrome.bottom-right { bottom: 24px; right: 24px; }
     .progress-bar { width: 140px; }
     .start-meta { flex-direction: column; gap: 24px; }
-    .r-head { grid-template-columns: 1fr; gap: 24px; }
-    .r-row { grid-template-columns: 28px 70px 1fr 60px 24px; gap: 12px; font-size: 14px; }
+  }
+
+  /* Phone: corners overlap. Stack everything centered, drop secondary chrome. */
+  @media (max-width: 700px) {
+    .screen { padding: 90px 20px 80px; }
+
+    /* Center the logo at top, hide the QUIZ tag */
+    .chrome.top-left {
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      justify-content: center;
+      text-align: center;
+    }
+    .chrome.top-right { display: none; }
+
+    /* Center the progress bar at bottom, hide the github URL */
+    .chrome.bottom-left { display: none; }
+    .chrome.bottom-right {
+      bottom: 18px;
+      right: auto;
+      left: 50%;
+      transform: translateX(-50%);
+      justify-content: center;
+    }
+    .progress-bar { width: 160px; }
+
+    /* Stack actions on results & gate so they don't crowd horizontally */
+    .r-actions { flex-direction: column; gap: 18px; padding-top: 24px; }
+    .start-meta { gap: 18px; }
+  }
+
+  /* Small phone: shrink chrome typography and progress bar */
+  @media (max-width: 480px) {
+    .screen { padding: 84px 16px 76px; }
+    .logo-mark { width: 30px; height: 30px; }
+    .logo-text { font-size: 18px; }
+    .progress-bar { width: 120px; }
+    .step-counter { font-size: 10px; }
+
+    /* Question screen: tighter option grid */
+    .option { grid-template-columns: 36px 1fr 22px; padding: 18px 16px; font-size: 16px; gap: 12px; }
+
+    /* Gate / results: keep score from getting too tall */
+    .gate-score { margin-bottom: 16px; }
+    .gate-message { font-size: 20px; }
   }
 </style>
 </head>
