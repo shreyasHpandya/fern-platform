@@ -449,24 +449,19 @@
   }
 
   .r-inner {
-    max-width: 1000px;
+    max-width: 900px;
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 40px;
-  }
-
-  .r-head {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 60px;
     align-items: center;
+    text-align: center;
+    gap: 32px;
   }
 
   .r-score {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(120px, 16vw, 220px);
+    font-size: clamp(140px, 22vw, 320px);
     line-height: 0.9;
     letter-spacing: -0.04em;
     color: var(--moss-bright);
@@ -474,7 +469,7 @@
 
   .r-score .total {
     color: rgba(244, 239, 230, 0.4);
-    font-size: 0.45em;
+    font-size: 0.42em;
     margin-left: 8px;
   }
 
@@ -482,75 +477,19 @@
     font-family: var(--serif);
     font-style: italic;
     font-weight: 300;
-    font-size: clamp(28px, 3vw, 40px);
-    line-height: 1.25;
+    font-size: clamp(32px, 4vw, 56px);
+    line-height: 1.2;
     color: var(--paper);
-  }
-
-  .r-band-sub {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.5);
-    margin-top: 14px;
-  }
-
-  .r-breakdown {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--line-strong);
-  }
-
-  .r-row {
-    display: grid;
-    grid-template-columns: 32px 90px 1fr 80px 28px;
-    gap: 20px;
-    align-items: center;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--line);
-    font-size: 15px;
-  }
-
-  .r-row .num {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    color: rgba(244, 239, 230, 0.45);
-  }
-
-  .r-row .pts {
-    font-family: var(--mono);
-    font-size: 13px;
-    text-align: right;
-    letter-spacing: 0.05em;
-  }
-
-  .r-row .pts.earned { color: var(--moss-bright); }
-  .r-row .pts.zero { color: rgba(244, 239, 230, 0.35); }
-
-  .r-row .mark {
-    font-family: var(--mono);
-    font-size: 16px;
-    text-align: center;
-  }
-
-  .r-row .mark.ok { color: var(--moss-bright); }
-  .r-row .mark.no { color: var(--rust); }
-
-  .r-row .text { color: rgba(244, 239, 230, 0.85); }
-
-  .r-row .chip-cell .difficulty-chip {
-    font-size: 9px;
-    padding: 3px 8px;
+    max-width: 720px;
   }
 
   .r-actions {
     display: flex;
-    gap: 16px;
-    justify-content: space-between;
+    gap: 32px;
+    justify-content: center;
     align-items: center;
-    padding-top: 24px;
+    padding-top: 32px;
+    flex-wrap: wrap;
   }
 
   .r-actions .gh-link {
@@ -665,16 +604,10 @@
     <!-- RESULTS -->
     <section class="screen screen-results" id="screen-results">
       <div class="r-inner">
-        <div class="r-head reveal reveal-1">
-          <div class="r-score">
-            <span id="r-score">0</span><span class="total"> / 100</span>
-          </div>
-          <div>
-            <div class="r-band" id="r-band"></div>
-            <div class="r-band-sub" id="r-band-sub"></div>
-          </div>
+        <div class="r-score reveal reveal-1">
+          <span id="r-score">0</span><span class="total"> / 100</span>
         </div>
-        <div class="r-breakdown reveal reveal-2" id="r-breakdown"></div>
+        <div class="r-band reveal reveal-2" id="r-band"></div>
         <div class="r-actions reveal reveal-3">
           <a class="gh-link" href="https://github.com/guidewire-oss/fern-platform" target="_blank" rel="noopener">&#9733; guidewire-oss/fern-platform</a>
           <button class="btn-primary" id="btn-replay">Play again &#8635;</button>
@@ -905,47 +838,14 @@
   });
 
   // ============== RESULTS ==============
-  const rScoreEl     = document.getElementById('r-score');
-  const rBandEl      = document.getElementById('r-band');
-  const rBandSubEl   = document.getElementById('r-band-sub');
-  const rBreakdownEl = document.getElementById('r-breakdown');
+  const rScoreEl = document.getElementById('r-score');
+  const rBandEl  = document.getElementById('r-band');
 
   function bandFor(score) {
-    if (score === 100) return ['Frond-tip perfect.', 'You know more about Fern than the README does.'];
-    if (score >= 71)   return ['Rooted and thriving.', 'A few sporelings missed, but the canopy is healthy.'];
-    if (score >= 41)   return ['You’re rooted in the basics.', 'Time to read a couple more docs.'];
-    return ['Fresh sprout.', 'Welcome to the forest. Try again.'];
-  }
-
-  function buildBreakdownRow(i, q, earned) {
-    const possible = WEIGHT[q.difficulty];
-    const truncated = q.prompt.length > 80 ? q.prompt.slice(0, 77) + '…' : q.prompt;
-
-    const row = el('div', 'r-row');
-
-    const num = el('div', 'num');
-    num.textContent = String(i + 1).padStart(2, '0');
-
-    const chipCell = el('div', 'chip-cell');
-    const chip = el('span', 'difficulty-chip ' + q.difficulty);
-    chip.textContent = q.difficulty;
-    chipCell.appendChild(chip);
-
-    const text = el('div', 'text');
-    text.textContent = truncated;
-
-    const pts = el('div', 'pts ' + (earned > 0 ? 'earned' : 'zero'));
-    pts.textContent = '+' + earned + ' / ' + possible;
-
-    const mark = el('div', 'mark ' + (earned > 0 ? 'ok' : 'no'));
-    mark.textContent = earned > 0 ? '✓' : '✕';
-
-    row.appendChild(num);
-    row.appendChild(chipCell);
-    row.appendChild(text);
-    row.appendChild(pts);
-    row.appendChild(mark);
-    return row;
+    if (score === 100) return 'Perfect score.';
+    if (score >= 70)   return 'Good score.';
+    if (score > 0)     return 'Almost there.';
+    return 'Botanically impressive zero.';
   }
 
   function showResults() {
@@ -955,16 +855,7 @@
     });
 
     rScoreEl.textContent = String(total);
-    const band = bandFor(total);
-    rBandEl.textContent = band[0];
-    rBandSubEl.textContent = band[1];
-
-    clear(rBreakdownEl);
-    answers.forEach((a, i) => {
-      const q = round[i];
-      const earned = a && a.correct ? WEIGHT[q.difficulty] : 0;
-      rBreakdownEl.appendChild(buildBreakdownRow(i, q, earned));
-    });
+    rBandEl.textContent = bandFor(total);
 
     updateProgress(round.length);
     showScreen('results');
