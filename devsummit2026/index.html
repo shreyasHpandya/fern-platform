@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fern Platform — Test Intelligence, Reimagined</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a1410;
+    --ink-2: #0f1d18;
+    --ink-3: #142922;
+    --paper: #f4efe6;
+    --paper-2: #e8e0d1;
+    --moss: #4a8a5f;
+    --moss-bright: #6dd49a;
+    --moss-deep: #1f4a30;
+    --gold: #d4a64a;
+    --rust: #c25a3c;
+    --line: rgba(244, 239, 230, 0.12);
+    --line-strong: rgba(244, 239, 230, 0.25);
+    --serif: 'Fraunces', 'Times New Roman', serif;
+    --sans: 'Inter Tight', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============== STAGE ============== */
+  .stage {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 30%, rgba(74, 138, 95, 0.12), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 70%, rgba(31, 74, 48, 0.18), transparent 60%),
+      var(--ink);
+  }
+
+  /* Subtle animated grain */
+  .stage::before {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+    animation: grain 8s steps(8) infinite;
+    pointer-events: none;
+  }
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-5%, -10%); }
+    30% { transform: translate(3%, -15%); }
+    50% { transform: translate(12%, 9%); }
+    70% { transform: translate(-7%, 4%); }
+    90% { transform: translate(8%, -3%); }
+  }
+
+  /* ============== PERSISTENT CHROME ============== */
+  .chrome {
+    position: fixed;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .chrome.top-left {
+    top: 36px; left: 48px;
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  .logo-mark {
+    width: 38px; height: 38px;
+    position: relative;
+  }
+
+  .logo-mark svg { width: 100%; height: 100%; }
+
+  .logo-text {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    font-feature-settings: "ss01";
+  }
+
+  .logo-text em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--moss-bright);
+  }
+
+  .chrome.top-right {
+    top: 36px; right: 48px;
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.55);
+  }
+
+  .chrome.top-right .live-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--moss-bright);
+    margin-right: 8px;
+    vertical-align: middle;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(109, 212, 154, 0.5); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 8px rgba(109, 212, 154, 0); }
+  }
+
+  .chrome.bottom-left {
+    bottom: 36px; left: 48px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.45);
+  }
+
+  .chrome.bottom-right {
+    bottom: 36px; right: 48px;
+    display: flex; gap: 8px;
+    align-items: center;
+  }
+
+  .progress-bar {
+    width: 240px;
+    height: 2px;
+    background: rgba(244, 239, 230, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--moss), var(--moss-bright));
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  .slide-counter {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: rgba(244, 239, 230, 0.55);
+    margin-left: 16px;
+  }
+
+  /* ============== SLIDES ============== */
+  .slides {
+    position: absolute;
+    inset: 0;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 120px 100px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0s 0.9s;
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0s;
+  }
+
+  /* Reveal animations triggered when active */
+  .slide .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 1s cubic-bezier(0.2, 0.6, 0.2, 1),
+                transform 1s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+
+  .slide.active .reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .slide.active .reveal-1 { transition-delay: 0.15s; }
+  .slide.active .reveal-2 { transition-delay: 0.35s; }
+  .slide.active .reveal-3 { transition-delay: 0.55s; }
+  .slide.active .reveal-4 { transition-delay: 0.75s; }
+  .slide.active .reveal-5 { transition-delay: 0.95s; }
+  .slide.active .reveal-6 { transition-delay: 1.15s; }
+
+  /* ============== TYPOGRAPHY ============== */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--moss-bright);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 36px; height: 1px;
+    background: var(--moss-bright);
+  }
+
+  .display {
+    font-family: var(--serif);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    font-feature-settings: "ss01";
+  }
+
+  .display em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--moss-bright);
+  }
+
+  .display .accent {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* ============== SLIDE 1: HERO ============== */
+  .slide-hero {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .hero-title {
+    font-size: clamp(72px, 8vw, 132px);
+    margin-bottom: 36px;
+  }
+
+  .hero-tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 28px;
+    line-height: 1.3;
+    color: rgba(244, 239, 230, 0.75);
+    max-width: 520px;
+    margin-bottom: 56px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+
+  .hero-meta-item .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.5);
+    margin-bottom: 6px;
+  }
+
+  .hero-meta-item .value {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .hero-visual {
+    position: relative;
+    aspect-ratio: 1;
+    width: 100%;
+    max-width: 520px;
+    justify-self: center;
+  }
+
+  /* Animated fern */
+  .fern-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 60px rgba(109, 212, 154, 0.15));
+  }
+
+  .fern-svg path,
+  .fern-svg circle {
+    transition: opacity 1.2s ease;
+  }
+
+  .slide.active .fern-leaf {
+    animation: leafGrow 1.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  }
+
+  .slide.active .fern-leaf:nth-child(2) { animation-delay: 0.2s; }
+  .slide.active .fern-leaf:nth-child(3) { animation-delay: 0.4s; }
+  .slide.active .fern-leaf:nth-child(4) { animation-delay: 0.6s; }
+  .slide.active .fern-leaf:nth-child(5) { animation-delay: 0.8s; }
+  .slide.active .fern-leaf:nth-child(6) { animation-delay: 1.0s; }
+  .slide.active .fern-leaf:nth-child(7) { animation-delay: 1.2s; }
+
+  @keyframes leafGrow {
+    from { opacity: 0; transform: scale(0.7); transform-origin: center; }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* ============== SLIDE 2: PROBLEM ============== */
+  .slide-problem {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 60px;
+  }
+
+  .problem-headline {
+    font-size: clamp(56px, 6.5vw, 96px);
+    max-width: 1200px;
+  }
+
+  .problem-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px;
+    align-items: end;
+  }
+
+  .stat-card {
+    border-top: 1px solid var(--line-strong);
+    padding-top: 24px;
+  }
+
+  .stat-number {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(72px, 8vw, 128px);
+    line-height: 1;
+    color: var(--moss-bright);
+    letter-spacing: -0.04em;
+    font-feature-settings: "lnum", "tnum";
+  }
+
+  .stat-number .unit {
+    font-size: 0.45em;
+    color: var(--paper);
+    margin-left: 4px;
+    font-weight: 400;
+  }
+
+  .stat-label {
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.4;
+    color: rgba(244, 239, 230, 0.7);
+    margin-top: 16px;
+    max-width: 280px;
+  }
+
+  /* ============== SLIDE 3: SOLUTION OVERVIEW ============== */
+  .slide-solution {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 100px;
+    align-items: center;
+  }
+
+  .solution-title {
+    font-size: clamp(56px, 6.5vw, 92px);
+    margin-bottom: 36px;
+  }
+
+  .solution-body {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: 22px;
+    line-height: 1.45;
+    color: rgba(244, 239, 230, 0.78);
+    max-width: 520px;
+  }
+
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .pipeline-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 20px;
+    align-items: center;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .pipeline-row .step {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: rgba(244, 239, 230, 0.4);
+  }
+
+  .pipeline-row .label {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  .pipeline-row.highlight .label {
+    color: var(--moss-bright);
+    font-style: italic;
+  }
+
+  .pipeline-row.highlight .label::after {
+    content: " →";
+    color: var(--gold);
+    font-style: normal;
+  }
+
+  /* ============== SLIDE 4: FEATURES ============== */
+  .slide-features {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 60px;
+  }
+
+  .features-headline {
+    font-size: clamp(48px, 5.5vw, 80px);
+    max-width: 1100px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 28px;
+  }
+
+  .feature-card {
+    padding: 32px 28px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: linear-gradient(135deg, rgba(20, 41, 34, 0.4), rgba(15, 29, 24, 0.2));
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: all 0.4s ease;
+  }
+
+  .feature-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--moss-bright);
+    transition: width 1s 0.5s ease;
+  }
+
+  .slide.active .feature-card::after {
+    width: 100%;
+  }
+
+  .feature-icon {
+    width: 36px; height: 36px;
+    color: var(--moss-bright);
+  }
+
+  .feature-icon svg { width: 100%; height: 100%; stroke-width: 1.4; }
+
+  .feature-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .feature-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(244, 239, 230, 0.65);
+  }
+
+  /* ============== SLIDE 5: ARCHITECTURE ============== */
+  .slide-arch {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 60px;
+  }
+
+  .arch-diagram {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    gap: 20px;
+    align-content: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .arch-tier {
+    display: grid;
+    gap: 16px;
+  }
+
+  .arch-tier.tier-1 { grid-template-columns: repeat(3, 1fr); }
+  .arch-tier.tier-2 { grid-template-columns: 1fr; }
+  .arch-tier.tier-3 { grid-template-columns: repeat(2, 1fr); }
+
+  .arch-box {
+    padding: 28px 32px;
+    border: 1px solid var(--line-strong);
+    background: rgba(20, 41, 34, 0.3);
+    text-align: center;
+    position: relative;
+  }
+
+  .arch-box .arch-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.5);
+    margin-bottom: 8px;
+  }
+
+  .arch-box .arch-name {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .arch-box.core {
+    background: linear-gradient(135deg, rgba(74, 138, 95, 0.2), rgba(31, 74, 48, 0.1));
+    border-color: var(--moss);
+  }
+
+  .arch-box.core .arch-name { color: var(--moss-bright); }
+
+  .arch-connector {
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .arch-connector::before {
+    content: "";
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom, var(--moss-bright), transparent, var(--moss-bright));
+    background-size: 1px 6px;
+    background-repeat: repeat-y;
+    opacity: 0.5;
+  }
+
+  /* ============== SLIDE 6: INTEGRATIONS ============== */
+  .slide-integrations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .integrations-title {
+    font-size: clamp(56px, 6.5vw, 92px);
+    margin-bottom: 32px;
+  }
+
+  .integrations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .integration-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: center;
+    padding: 24px 28px;
+    border: 1px solid var(--line);
+    background: rgba(20, 41, 34, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .integration-logo {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(244, 239, 230, 0.05);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .integration-info .name {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .integration-info .lang {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.5);
+    margin-top: 4px;
+  }
+
+  .integration-status {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--moss-bright);
+    padding: 4px 10px;
+    border: 1px solid var(--moss-bright);
+    border-radius: 2px;
+  }
+
+  /* ============== SLIDE 7: VISION (AI) ============== */
+  .slide-vision {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .vision-eyebrow {
+    color: var(--gold);
+  }
+
+  .vision-eyebrow::before { background: var(--gold); }
+
+  .vision-title {
+    font-size: clamp(56px, 6.5vw, 100px);
+    margin-bottom: 36px;
+    line-height: 0.92;
+  }
+
+  .vision-quote {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 26px;
+    line-height: 1.4;
+    color: rgba(244, 239, 230, 0.8);
+    border-left: 2px solid var(--gold);
+    padding-left: 24px;
+    max-width: 540px;
+  }
+
+  .future-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .future-item {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: start;
+  }
+
+  .future-icon {
+    width: 48px; height: 48px;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif);
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .future-item .heading {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  .future-item .body {
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(244, 239, 230, 0.65);
+  }
+
+  /* ============== SLIDE 8: CTA / WRAP ============== */
+  .slide-cta {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 100px;
+    align-items: center;
+    text-align: left;
+  }
+
+  .cta-eyebrow {
+    margin-bottom: 40px;
+  }
+
+  .cta-qr-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .cta-qr-frame {
+    background: var(--paper);
+    padding: 24px;
+    border-radius: 4px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(244, 239, 230, 0.1);
+    position: relative;
+  }
+
+  .cta-qr-frame::before,
+  .cta-qr-frame::after {
+    content: "";
+    position: absolute;
+    width: 16px; height: 16px;
+    border: 1px solid var(--moss-bright);
+  }
+
+  .cta-qr-frame::before {
+    top: -8px; left: -8px;
+    border-right: none; border-bottom: none;
+  }
+
+  .cta-qr-frame::after {
+    bottom: -8px; right: -8px;
+    border-left: none; border-top: none;
+  }
+
+  .cta-qr-frame canvas,
+  .cta-qr-frame svg,
+  .cta-qr-frame img {
+    display: block;
+    width: 280px;
+    height: 280px;
+  }
+
+  .cta-qr-caption {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.6);
+  }
+
+  .cta-qr-caption .arrow {
+    color: var(--moss-bright);
+    margin-right: 8px;
+  }
+
+  /* Persistent corner QR (shown on slides 1-7) */
+  .corner-qr {
+    position: fixed;
+    bottom: 80px;
+    right: 48px;
+    z-index: 50;
+    background: var(--paper);
+    padding: 10px 10px 6px;
+    border-radius: 3px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(244, 239, 230, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.6s ease;
+  }
+
+  .corner-qr canvas,
+  .corner-qr svg,
+  .corner-qr img {
+    display: block;
+    width: 88px;
+    height: 88px;
+  }
+
+  .corner-qr .corner-qr-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  body.cta-active .corner-qr {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cta-title {
+    font-size: clamp(56px, 6.5vw, 96px);
+    margin-bottom: 32px;
+  }
+
+  .cta-tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 26px;
+    line-height: 1.3;
+    color: rgba(244, 239, 230, 0.75);
+    max-width: 620px;
+    margin-bottom: 48px;
+  }
+
+  .cta-info {
+    display: flex;
+    gap: 48px;
+    padding: 28px 0;
+    border-top: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
+    align-items: center;
+  }
+
+  .cta-info-item {
+    text-align: left;
+  }
+
+  .cta-info-item .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.5);
+    margin-bottom: 8px;
+  }
+
+  .cta-info-item .value {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .cta-info-item .value.mono {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: var(--moss-bright);
+  }
+
+  .cta-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--line-strong);
+  }
+
+  /* ============== DECORATIVE ELEMENTS ============== */
+  .corner-deco {
+    position: absolute;
+    width: 40px; height: 40px;
+    border: 1px solid var(--line-strong);
+  }
+
+  .corner-deco.tl { top: 80px; left: 80px; border-right: none; border-bottom: none; }
+  .corner-deco.tr { top: 80px; right: 80px; border-left: none; border-bottom: none; }
+  .corner-deco.bl { bottom: 80px; left: 80px; border-right: none; border-top: none; }
+  .corner-deco.br { bottom: 80px; right: 80px; border-left: none; border-top: none; }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .slide { padding: 100px 60px; }
+    .chrome.top-left, .chrome.top-right { top: 24px; }
+    .chrome.bottom-left, .chrome.bottom-right { bottom: 24px; }
+    .chrome.top-left { left: 30px; }
+    .chrome.top-right { right: 30px; }
+    .chrome.bottom-left { left: 30px; }
+    .chrome.bottom-right { right: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============== PERSISTENT CHROME ============== -->
+  <div class="chrome top-left">
+    <div class="logo-mark">
+      <svg viewBox="0 0 40 40" fill="none">
+        <path d="M20 36 C20 36, 8 30, 8 18 C8 10, 14 6, 20 6 C26 6, 32 10, 32 18 C32 30, 20 36, 20 36 Z" stroke="#6dd49a" stroke-width="1.2" fill="none" opacity="0.4"/>
+        <path d="M20 4 L20 36" stroke="#6dd49a" stroke-width="1"/>
+        <path d="M20 8 Q14 11 12 16" stroke="#6dd49a" stroke-width="1" fill="none"/>
+        <path d="M20 8 Q26 11 28 16" stroke="#6dd49a" stroke-width="1" fill="none"/>
+        <path d="M20 14 Q14 17 11 22" stroke="#6dd49a" stroke-width="1" fill="none"/>
+        <path d="M20 14 Q26 17 29 22" stroke="#6dd49a" stroke-width="1" fill="none"/>
+        <path d="M20 20 Q14 23 12 28" stroke="#6dd49a" stroke-width="1" fill="none"/>
+        <path d="M20 20 Q26 23 28 28" stroke="#6dd49a" stroke-width="1" fill="none"/>
+        <path d="M20 26 Q15 28 14 32" stroke="#6dd49a" stroke-width="1" fill="none"/>
+        <path d="M20 26 Q25 28 26 32" stroke="#6dd49a" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
+    <div class="logo-text">Fern <em>Platform</em></div>
+  </div>
+
+  <div class="chrome top-right">
+    <span class="live-dot"></span>OPEN SOURCE · APACHE 2.0
+  </div>
+
+  <div class="chrome bottom-left">
+    github.com/guidewire-oss/fern-platform
+  </div>
+
+  <div class="chrome bottom-right">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="slide-counter"><span id="slide-current">01</span> / <span id="slide-total">08</span></div>
+  </div>
+
+  <!-- ============== SLIDES ============== -->
+  <div class="slides" id="slides">
+
+    <!-- ============== SLIDE 1: HERO ============== -->
+    <section class="slide slide-hero active" data-duration="9000">
+      <div>
+        <div class="eyebrow reveal reveal-1">UNIFIED TEST INTELLIGENCE</div>
+        <h1 class="display hero-title reveal reveal-2">
+          See every<br>test. <em>Trust</em><br>every build.
+        </h1>
+        <p class="hero-tagline reveal reveal-3">
+          The open-source observability platform that turns scattered CI noise into actionable insights — across every framework, every team.
+        </p>
+        <div class="hero-meta reveal reveal-4">
+          <div class="hero-meta-item">
+            <div class="label">Built by</div>
+            <div class="value">Guidewire</div>
+          </div>
+          <div class="hero-meta-item">
+            <div class="label">Stars</div>
+            <div class="value">446 ★</div>
+          </div>
+          <div class="hero-meta-item">
+            <div class="label">Stack</div>
+            <div class="value">Go · React · GraphQL</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual reveal reveal-3">
+        <svg class="fern-svg" viewBox="0 0 400 400" fill="none">
+          <!-- Center stem -->
+          <line x1="200" y1="40" x2="200" y2="380" stroke="#6dd49a" stroke-width="1.5"/>
+          <!-- Pairs of leaves growing outward -->
+          <g class="fern-leaf">
+            <path d="M200 80 Q140 90 100 130 Q140 100 200 95 Z" fill="#4a8a5f" opacity="0.7"/>
+            <path d="M200 80 Q260 90 300 130 Q260 100 200 95 Z" fill="#4a8a5f" opacity="0.7"/>
+          </g>
+          <g class="fern-leaf">
+            <path d="M200 130 Q120 145 70 200 Q130 155 200 145 Z" fill="#5a9d6e" opacity="0.75"/>
+            <path d="M200 130 Q280 145 330 200 Q270 155 200 145 Z" fill="#5a9d6e" opacity="0.75"/>
+          </g>
+          <g class="fern-leaf">
+            <path d="M200 180 Q110 200 50 270 Q120 215 200 200 Z" fill="#6dd49a" opacity="0.8"/>
+            <path d="M200 180 Q290 200 350 270 Q280 215 200 200 Z" fill="#6dd49a" opacity="0.8"/>
+          </g>
+          <g class="fern-leaf">
+            <path d="M200 230 Q130 250 90 320 Q140 265 200 250 Z" fill="#5a9d6e" opacity="0.7"/>
+            <path d="M200 230 Q270 250 310 320 Q260 265 200 250 Z" fill="#5a9d6e" opacity="0.7"/>
+          </g>
+          <g class="fern-leaf">
+            <path d="M200 285 Q155 300 130 350 Q165 310 200 300 Z" fill="#4a8a5f" opacity="0.6"/>
+            <path d="M200 285 Q245 300 270 350 Q235 310 200 300 Z" fill="#4a8a5f" opacity="0.6"/>
+          </g>
+          <g class="fern-leaf">
+            <path d="M200 335 Q180 345 170 370 Q185 350 200 345 Z" fill="#3a7a4f" opacity="0.5"/>
+            <path d="M200 335 Q220 345 230 370 Q215 350 200 345 Z" fill="#3a7a4f" opacity="0.5"/>
+          </g>
+          <!-- Frond tip -->
+          <circle cx="200" cy="40" r="5" fill="#d4a64a"/>
+          <circle cx="200" cy="40" r="12" fill="none" stroke="#d4a64a" stroke-width="0.5" opacity="0.4"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 2: PROBLEM ============== -->
+    <section class="slide slide-problem" data-duration="8000">
+      <div>
+        <div class="eyebrow reveal reveal-1">THE PROBLEM</div>
+        <h2 class="display problem-headline reveal reveal-2">
+          Test data lives <em>everywhere</em>.<br>Insight lives <span class="accent">nowhere.</span>
+        </h2>
+      </div>
+      <div class="problem-stats">
+        <div class="stat-card reveal reveal-3">
+          <div class="stat-number" data-target="40"><span class="counter">0</span><span class="unit">%</span></div>
+          <div class="stat-label">of CI failures are flaky tests — not real bugs, just wasted engineer hours.</div>
+        </div>
+        <div class="stat-card reveal reveal-4">
+          <div class="stat-number" data-target="6"><span class="counter">0</span><span class="unit">+</span></div>
+          <div class="stat-label">test frameworks per org. Jest. JUnit. Ginkgo. pytest. Each in its own silo.</div>
+        </div>
+        <div class="stat-card reveal reveal-5">
+          <div class="stat-number" data-target="0"><span class="counter">0</span></div>
+          <div class="stat-label">unified views of test health. Until now.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 3: SOLUTION ============== -->
+    <section class="slide slide-solution" data-duration="8000">
+      <div>
+        <div class="eyebrow reveal reveal-1">THE SOLUTION</div>
+        <h2 class="display solution-title reveal reveal-2">
+          One pipeline.<br>Every <em>framework</em>.<br>Real <em>intelligence.</em>
+        </h2>
+        <p class="solution-body reveal reveal-3">
+          Fern Platform aggregates results from any CI/CD pipeline into a centralized dashboard — like Datadog or Grafana, but purpose-built for tests.
+        </p>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline-row reveal reveal-2">
+          <div class="step">01 — INGEST</div>
+          <div class="label">Multi-format test data</div>
+        </div>
+        <div class="pipeline-row reveal reveal-3">
+          <div class="step">02 — STORE</div>
+          <div class="label">PostgreSQL + Redis</div>
+        </div>
+        <div class="pipeline-row highlight reveal reveal-4">
+          <div class="step">03 — DETECT</div>
+          <div class="label">Flakiness & regressions</div>
+        </div>
+        <div class="pipeline-row highlight reveal reveal-5">
+          <div class="step">04 — VISUALIZE</div>
+          <div class="label">Treemap & trend dashboards</div>
+        </div>
+        <div class="pipeline-row highlight reveal reveal-6">
+          <div class="step">05 — QUERY</div>
+          <div class="label">REST + GraphQL APIs</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 4: FEATURES ============== -->
+    <section class="slide slide-features" data-duration="9000">
+      <div>
+        <div class="eyebrow reveal reveal-1">CAPABILITIES</div>
+        <h2 class="display features-headline reveal reveal-2">
+          Built for engineering teams<br>that ship <em>relentlessly.</em>
+        </h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal reveal-2">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/></svg>
+          </div>
+          <div class="feature-title">Universal aggregation</div>
+          <div class="feature-desc">REST API ingests test results from any framework or CI/CD system. One source of truth.</div>
+        </div>
+        <div class="feature-card reveal reveal-3">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke-linecap="round"/></svg>
+          </div>
+          <div class="feature-title">Flaky test detection</div>
+          <div class="feature-desc">Automatically pinpoint tests that pass and fail intermittently — before they erode trust in your pipeline.</div>
+        </div>
+        <div class="feature-card reveal reveal-4">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18M7 14l4-4 4 4 5-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="feature-title">Performance monitoring</div>
+          <div class="feature-desc">Track execution times, surface slow tests, and catch performance regressions weeks earlier.</div>
+        </div>
+        <div class="feature-card reveal reveal-5">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="10" width="8" height="11"/><rect x="3" y="13" width="8" height="8"/></svg>
+          </div>
+          <div class="feature-title">Treemap visualizations</div>
+          <div class="feature-desc">Suite health at a glance. Spot failing clusters and unhealthy modules without scrolling reports.</div>
+        </div>
+        <div class="feature-card reveal reveal-5">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="feature-title">Team access control</div>
+          <div class="feature-desc">OAuth and SSO integration with role-based permissions. Built for org-scale collaboration.</div>
+        </div>
+        <div class="feature-card reveal reveal-6">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="feature-title">GraphQL API</div>
+          <div class="feature-desc">Rich, flexible querying for custom dashboards, integrations, and deep test data analysis.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 5: ARCHITECTURE ============== -->
+    <section class="slide slide-arch" data-duration="8000">
+      <div>
+        <div class="eyebrow reveal reveal-1">ARCHITECTURE</div>
+        <h2 class="display features-headline reveal reveal-2">
+          Hexagonal. Domain-driven.<br><em>Production-ready.</em>
+        </h2>
+      </div>
+      <div class="arch-diagram">
+        <div class="arch-tier tier-1 reveal reveal-3">
+          <div class="arch-box">
+            <div class="arch-label">Interface</div>
+            <div class="arch-name">Web UI</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-label">Interface</div>
+            <div class="arch-name">REST API</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-label">Interface</div>
+            <div class="arch-name">GraphQL API</div>
+          </div>
+        </div>
+        <div class="arch-connector reveal reveal-4"></div>
+        <div class="arch-tier tier-2 reveal reveal-4">
+          <div class="arch-box core">
+            <div class="arch-label">Business Domains</div>
+            <div class="arch-name">Tests · Analytics · Projects · Users</div>
+          </div>
+        </div>
+        <div class="arch-connector reveal reveal-5"></div>
+        <div class="arch-tier tier-3 reveal reveal-5">
+          <div class="arch-box">
+            <div class="arch-label">Storage</div>
+            <div class="arch-name">PostgreSQL</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-label">Cache</div>
+            <div class="arch-name">Redis</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 6: INTEGRATIONS ============== -->
+    <section class="slide slide-integrations" data-duration="8000">
+      <div>
+        <div class="eyebrow reveal reveal-1">INTEGRATE IN MINUTES</div>
+        <h2 class="display integrations-title reveal reveal-2">
+          Drop in.<br>Ship <em>tomorrow.</em>
+        </h2>
+        <p class="solution-body reveal reveal-3">
+          Official client libraries for the frameworks teams actually use — plus a clean API spec for everything else.
+        </p>
+      </div>
+      <div class="integrations-list">
+        <div class="integration-row reveal reveal-2">
+          <div class="integration-logo" style="color: #00ADD8;">Go</div>
+          <div class="integration-info">
+            <div class="name">fern-ginkgo-client</div>
+            <div class="lang">Go · Ginkgo BDD</div>
+          </div>
+          <div class="integration-status">Stable</div>
+        </div>
+        <div class="integration-row reveal reveal-3">
+          <div class="integration-logo" style="color: #f7df1e;">JS</div>
+          <div class="integration-info">
+            <div class="name">fern-jest-client</div>
+            <div class="lang">JavaScript · TypeScript · Jest</div>
+          </div>
+          <div class="integration-status">Stable</div>
+        </div>
+        <div class="integration-row reveal reveal-4">
+          <div class="integration-logo" style="color: #f89820;">Jv</div>
+          <div class="integration-info">
+            <div class="name">fern-junit-client</div>
+            <div class="lang">Java · Kotlin · Scala · JUnit</div>
+          </div>
+          <div class="integration-status">Stable</div>
+        </div>
+        <div class="integration-row reveal reveal-5">
+          <div class="integration-logo" style="color: #02303a;">Gr</div>
+          <div class="integration-info">
+            <div class="name">fern-junit-gradle-plugin</div>
+            <div class="lang">Gradle · JVM ecosystem</div>
+          </div>
+          <div class="integration-status">Stable</div>
+        </div>
+        <div class="integration-row reveal reveal-6">
+          <div class="integration-logo" style="color: #d4a64a;">+</div>
+          <div class="integration-info">
+            <div class="name">Build your own</div>
+            <div class="lang">pytest · RSpec · PHPUnit · NUnit · anything</div>
+          </div>
+          <div class="integration-status" style="color: var(--gold); border-color: var(--gold);">Open</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 7: VISION (AI) ============== -->
+    <section class="slide slide-vision" data-duration="9000">
+      <div>
+        <div class="eyebrow vision-eyebrow reveal reveal-1">WHAT'S NEXT</div>
+        <h2 class="display vision-title reveal reveal-2">
+          AI that <span class="accent">predicts</span><br>failures before<br>they happen.
+        </h2>
+        <p class="vision-quote reveal reveal-3">
+          We're building toward an intelligence system that doesn't just report failures — it explains them, predicts them, and prevents them.
+        </p>
+      </div>
+      <div class="future-list">
+        <div class="future-item reveal reveal-2">
+          <div class="future-icon">i</div>
+          <div>
+            <div class="heading">Automatic root cause analysis</div>
+            <div class="body">LLM-powered explanations of why tests failed and what to fix first.</div>
+          </div>
+        </div>
+        <div class="future-item reveal reveal-3">
+          <div class="future-icon">∞</div>
+          <div>
+            <div class="heading">Predictive failure detection</div>
+            <div class="body">Surface tests likely to break next — before the next pull request lands.</div>
+          </div>
+        </div>
+        <div class="future-item reveal reveal-4">
+          <div class="future-icon">⊳</div>
+          <div>
+            <div class="heading">Smart test selection</div>
+            <div class="body">Run only what matters for each change. Faster CI without losing coverage.</div>
+          </div>
+        </div>
+        <div class="future-item reveal reveal-5">
+          <div class="future-icon">?</div>
+          <div>
+            <div class="heading">Natural language queries</div>
+            <div class="body">"Why did the auth tests fail last week?" — and get a real answer.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 8: CTA ============== -->
+    <section class="slide slide-cta" data-duration="9000">
+      <div>
+        <div class="cta-eyebrow eyebrow reveal reveal-1">JOIN THE PROJECT</div>
+        <h2 class="display cta-title reveal reveal-2">
+          Stop chasing<br>flaky tests.<br><em>Start trusting</em><br>your pipeline.
+        </h2>
+        <p class="cta-tagline reveal reveal-3">
+          Free. Open source. Apache 2.0. Production-ready today.
+        </p>
+        <div class="cta-info reveal reveal-4">
+          <div class="cta-info-item">
+            <div class="label">GitHub</div>
+            <div class="value mono">guidewire-oss/fern-platform</div>
+          </div>
+          <div class="cta-divider"></div>
+          <div class="cta-info-item">
+            <div class="label">Get Started</div>
+            <div class="value">make deploy-all</div>
+          </div>
+          <div class="cta-divider"></div>
+          <div class="cta-info-item">
+            <div class="label">License</div>
+            <div class="value">Apache 2.0</div>
+          </div>
+        </div>
+      </div>
+      <div class="cta-qr-block reveal reveal-3">
+        <div class="cta-qr-frame" id="qr-large"></div>
+        <div class="cta-qr-caption"><span class="arrow">→</span>SCAN TO OPEN ON GITHUB</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Persistent corner QR (visible on slides 1-7) -->
+  <div class="corner-qr" id="corner-qr-wrap">
+    <div id="qr-small"></div>
+    <div class="corner-qr-label">Scan · GitHub</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ============== QR CODE ==============
+  // Pre-computed QR matrix for https://github.com/guidewire-oss/fern-platform
+  // Generated via libqrencode, version 4 (33x33), error correction level Q
+  // ECC level Q can recover from ~25% damage — ideal for conference displays.
+  const QR_SIZE = 33;
+  const QR_ROWS = [
+    "111111100000001100111001001111111",
+    "100000101001010000000111101000001",
+    "101110101101001100011010101011101",
+    "101110100011100101001000101011101",
+    "101110100110110010010000101011101",
+    "100000100101001010011110001000001",
+    "111111101010101010101010101111111",
+    "000000000001000001110000000000000",
+    "011101100110010011101110100000110",
+    "101111000101110001111001001101101",
+    "101001110010100111100011001111011",
+    "100111010011011110101000001101001",
+    "111001110100110000100011010011010",
+    "101011010110001101010110110101110",
+    "010011110100001011010100101101000",
+    "101100001101100100111100011011100",
+    "101010100001100100001111011010100",
+    "111010010011011111001011111011001",
+    "000011100110101110001100100110110",
+    "010101001101010011110001110010011",
+    "100000111011011110000100010001100",
+    "101010010000001011111101001000101",
+    "001100100101111011101101011101111",
+    "010101001101110000011001101101011",
+    "100111101100011111100010111110011",
+    "000000001011010010111100100011000",
+    "111111100000010001011001101010000",
+    "100000101011011100001101100011100",
+    "101110100011100110010111111110111",
+    "101110101010010101001111000101011",
+    "101110101110001101001010001101100",
+    "100000101001100100101011110111001",
+    "111111100001010001110101001010100"
+  ];
+
+  function buildQrSvg(opts) {
+    const size = QR_SIZE;
+    const moduleSize = opts.moduleSize || 8;
+    const quiet = opts.quietModules != null ? opts.quietModules : 2;
+    const total = (size + quiet * 2) * moduleSize;
+    const fg = opts.fg || "#0a1410";
+    const rects = [];
+    for (let y = 0; y < size; y++) {
+      const row = QR_ROWS[y];
+      for (let x = 0; x < size; x++) {
+        if (row.charCodeAt(x) === 49) { // '1'
+          const px = (x + quiet) * moduleSize;
+          const py = (y + quiet) * moduleSize;
+          rects.push(
+            `<rect x="${px}" y="${py}" width="${moduleSize}" height="${moduleSize}"/>`
+          );
+        }
+      }
+    }
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges" fill="${fg}">${rects.join("")}</svg>`;
+  }
+
+  // Render the two QR codes
+  const qrLargeEl = document.getElementById("qr-large");
+  const qrSmallEl = document.getElementById("qr-small");
+  if (qrLargeEl) qrLargeEl.innerHTML = buildQrSvg({ moduleSize: 10, quietModules: 2 });
+  if (qrSmallEl) qrSmallEl.innerHTML = buildQrSvg({ moduleSize: 4, quietModules: 2 });
+
+  // ============== SLIDE LOOP ==============
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const counterEl = document.getElementById('slide-current');
+  const totalEl = document.getElementById('slide-total');
+  const progressEl = document.getElementById('progress-fill');
+
+  totalEl.textContent = String(total).padStart(2, '0');
+
+  let current = 0;
+  let timeoutId = null;
+  let progressStart = 0;
+  let progressDuration = 0;
+
+  function updateProgress() {
+    const elapsed = performance.now() - progressStart;
+    const ratio = Math.min(elapsed / progressDuration, 1);
+    progressEl.style.transform = `scaleX(${ratio})`;
+    if (ratio < 1) requestAnimationFrame(updateProgress);
+  }
+
+  function animateCounters(slide) {
+    const counters = slide.querySelectorAll('.counter');
+    counters.forEach(el => {
+      const target = parseInt(el.parentElement.dataset.target, 10);
+      if (isNaN(target)) return;
+      let start = 0;
+      const duration = 1500;
+      const startTime = performance.now();
+      function tick(now) {
+        const t = Math.min((now - startTime) / duration, 1);
+        // ease out cubic
+        const eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(start + (target - start) * eased);
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  function showSlide(index) {
+    slides.forEach((s, i) => s.classList.toggle('active', i === index));
+    counterEl.textContent = String(index + 1).padStart(2, '0');
+
+    // Hide corner QR when the CTA slide (which has its own large QR) is showing
+    const isCta = slides[index].classList.contains('slide-cta');
+    document.body.classList.toggle('cta-active', isCta);
+
+    const duration = parseInt(slides[index].dataset.duration, 10) || 8000;
+    progressStart = performance.now();
+    progressDuration = duration;
+    progressEl.style.transform = 'scaleX(0)';
+    requestAnimationFrame(updateProgress);
+
+    // animate counters with a slight delay so reveal animation lands first
+    setTimeout(() => animateCounters(slides[index]), 600);
+
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      current = (current + 1) % total;
+      showSlide(current);
+    }, duration);
+  }
+
+  // Allow manual nav with arrow keys (helpful for staff at the booth)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      current = (current + 1) % total;
+      showSlide(current);
+    } else if (e.key === 'ArrowLeft') {
+      current = (current - 1 + total) % total;
+      showSlide(current);
+    } else if (e.key === 'f') {
+      // toggle fullscreen
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  // kick off
+  showSlide(0);
+})();
+</script>
+</body>
+</html>
