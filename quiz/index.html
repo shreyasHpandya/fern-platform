@@ -705,7 +705,6 @@
         <div class="r-band reveal reveal-2" id="r-band"></div>
         <div class="r-actions reveal reveal-3">
           <a class="gh-link" href="https://github.com/guidewire-oss/fern-platform" target="_blank" rel="noopener">&#9733; guidewire-oss/fern-platform</a>
-          <button class="btn-primary" id="btn-replay">Play again &#8635;</button>
         </div>
       </div>
     </section>
@@ -1114,7 +1113,6 @@
   }
 
   document.getElementById('btn-begin').addEventListener('click', beginOrGate);
-  document.getElementById('btn-replay').addEventListener('click', renderGate);
 
   // On initial load: if state already exists, show gate instead of start
   if (gateStatus().kind !== 'fresh') {
