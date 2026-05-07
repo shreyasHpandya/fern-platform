@@ -657,11 +657,38 @@
     align-items: center;
   }
 
-  .vision-eyebrow {
+  /* Prominent "Coming Soon" pill — replaces the easy-to-miss eyebrow */
+  .vision-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: rgba(212, 166, 74, 0.12);
+    border: 1.5px solid var(--gold);
+    border-radius: 2px;
     color: var(--gold);
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 36px;
   }
 
-  .vision-eyebrow::before { background: var(--gold); }
+  .vision-tag::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 0 rgba(212, 166, 74, 0.6);
+    animation: pulse-gold 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-gold {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(212, 166, 74, 0.6); }
+    50%      { opacity: 0.7; box-shadow: 0 0 0 10px rgba(212, 166, 74, 0); }
+  }
 
   .vision-title {
     font-size: clamp(56px, 6.5vw, 100px);
@@ -1226,7 +1253,7 @@
     <!-- ============== SLIDE 7: VISION (AI) ============== -->
     <section class="slide slide-vision" data-duration="9000">
       <div>
-        <div class="eyebrow vision-eyebrow reveal reveal-1">WHAT'S NEXT</div>
+        <div class="vision-tag reveal reveal-1">Coming Soon &middot; Roadmap</div>
         <h2 class="display vision-title reveal reveal-2">
           AI that <span class="accent">predicts</span><br>failures before<br>they happen.
         </h2>
