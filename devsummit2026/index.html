@@ -749,22 +749,22 @@
     color: rgba(244, 239, 230, 0.65);
   }
 
-  /* ============== SLIDE 8: JIRA INTENT COVERAGE (deep-dive) ============== */
-  .slide-jira {
+  /* ============== SLIDE 8: AI TEST-FAILURE INSIGHTS (deep-dive) ============== */
+  .slide-insights {
     display: grid;
-    grid-template-columns: 1fr 1.4fr;
+    grid-template-columns: 1fr 1.35fr;
     gap: 60px;
     align-items: center;
   }
 
-  .jira-title {
+  .insights-title {
     font-size: clamp(40px, 4.6vw, 72px);
     margin-bottom: 28px;
     line-height: 0.98;
   }
 
-  /* Mock "screenshot" container */
-  .jira-mock {
+  /* Mock "screenshot" frame */
+  .insights-mock {
     position: relative;
     background: var(--ink-2);
     border: 1px solid var(--line-strong);
@@ -774,7 +774,7 @@
                 0 0 0 1px rgba(244, 239, 230, 0.04);
   }
 
-  .jira-mock-header {
+  .insights-mock-header {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -783,7 +783,7 @@
     border-bottom: 1px solid var(--line);
   }
 
-  .jira-mock-header .ctrl-dot {
+  .insights-mock-header .ctrl-dot {
     width: 9px;
     height: 9px;
     border-radius: 50%;
@@ -791,7 +791,7 @@
     display: inline-block;
   }
 
-  .jira-mock-header .ctrl-url {
+  .insights-mock-header .ctrl-url {
     margin-left: 12px;
     font-family: var(--mono);
     font-size: 10px;
@@ -799,105 +799,22 @@
     color: rgba(244, 239, 230, 0.45);
   }
 
-  .jira-mock-body {
+  .insights-body { padding: 18px 18px 22px; }
+
+  /* Top hero strip: recoverable CI time */
+  .insights-summary {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: var(--line);
-  }
-
-  .jira-panel,
-  .ai-panel {
-    background: var(--ink-2);
-    padding: 22px 22px 24px;
-  }
-
-  /* Left mock panel: a Jira ticket */
-  .jira-chip {
-    display: inline-block;
-    padding: 4px 10px;
-    border: 1px solid rgba(109, 212, 154, 0.4);
-    border-radius: 2px;
-    color: var(--moss-bright);
-    font-family: var(--mono);
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-
-  .jira-pad-title {
-    font-family: var(--serif);
-    font-size: 19px;
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    color: var(--paper);
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(74, 138, 95, 0.16), rgba(212, 166, 74, 0.06));
+    border: 1px solid rgba(109, 212, 154, 0.25);
+    border-radius: 3px;
     margin-bottom: 16px;
   }
 
-  .jira-section-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.45);
-    margin: 14px 0 6px;
-  }
-
-  .jira-pad-text {
-    font-size: 12.5px;
-    line-height: 1.5;
-    color: rgba(244, 239, 230, 0.78);
-  }
-
-  .jira-ac {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .jira-ac li {
-    font-size: 12px;
-    line-height: 1.45;
-    color: rgba(244, 239, 230, 0.85);
-    padding: 5px 0 5px 16px;
-    position: relative;
-  }
-
-  .jira-ac li::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 11px;
-    width: 6px; height: 6px;
-    border: 1px solid rgba(244, 239, 230, 0.5);
-    border-radius: 1px;
-  }
-
-  /* Right mock panel: AI analysis */
-  .ai-panel {
-    background: linear-gradient(180deg, rgba(74, 138, 95, 0.08), rgba(20, 41, 34, 0.5));
-  }
-
-  .ai-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 14px;
-  }
-
-  .ai-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.5);
-  }
-
-  .ai-score {
+  .ins-summary-value {
     font-family: var(--serif);
     font-weight: 300;
     color: var(--moss-bright);
@@ -905,85 +822,101 @@
     letter-spacing: -0.04em;
   }
 
-  .ai-score .num { font-size: 56px; }
-  .ai-score .pct { font-size: 24px; margin-left: 4px; opacity: 0.7; }
+  .ins-summary-value .num { font-size: 56px; }
+  .ins-summary-value .unit { font-size: 18px; margin-left: 4px; opacity: 0.7; }
 
-  .ai-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .ai-row {
-    display: grid;
-    grid-template-columns: 14px 1fr 18px;
-    gap: 10px;
-    align-items: center;
-    padding: 9px 0;
-    border-bottom: 1px dashed rgba(244, 239, 230, 0.07);
-  }
-
-  .ai-row:last-child { border-bottom: none; }
-
-  .ai-row-mark {
+  .ins-summary-text .lbl {
+    font-family: var(--mono);
     font-size: 10px;
-    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 230, 0.55);
+    margin-bottom: 4px;
   }
 
-  .ai-row-name {
-    font-size: 12px;
-    color: var(--paper);
-    margin-bottom: 1px;
-  }
-
-  .ai-row-meta {
-    font-family: var(--mono);
-    font-size: 9.5px;
-    letter-spacing: 0.05em;
-    color: rgba(244, 239, 230, 0.4);
-  }
-
-  .ai-row-check {
-    font-family: var(--mono);
-    font-size: 13px;
-    text-align: center;
-    font-weight: 600;
-  }
-
-  .ai-row.covered .ai-row-mark,
-  .ai-row.covered .ai-row-check { color: var(--moss-bright); }
-
-  .ai-row.partial .ai-row-mark,
-  .ai-row.partial .ai-row-check { color: var(--gold); }
-
-  .ai-row.missing .ai-row-mark,
-  .ai-row.missing .ai-row-check { color: var(--rust); }
-
-  .ai-recommend {
-    margin-top: 14px;
-    padding: 12px 14px;
-    background: rgba(212, 166, 74, 0.08);
-    border-left: 2px solid var(--gold);
+  .ins-summary-text .det {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 13px;
-    line-height: 1.4;
-    color: rgba(244, 239, 230, 0.9);
+    font-size: 14px;
+    color: rgba(244, 239, 230, 0.85);
   }
 
-  .ai-recommend-label {
-    display: block;
+  /* Insight cards */
+  .insight-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .insight-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 12px 14px;
+    background: rgba(20, 41, 34, 0.45);
+    border: 1px solid var(--line);
+    border-left-width: 3px;
+    border-radius: 2px;
+  }
+
+  .insight-card.unstable { border-left-color: var(--rust); }
+  .insight-card.top-roi  { border-left-color: var(--gold); }
+  .insight-card.quick    { border-left-color: var(--moss-bright); }
+
+  .insight-tag {
     font-family: var(--mono);
-    font-style: normal;
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--gold);
     margin-bottom: 4px;
   }
 
-  /* ============== SLIDE 8: CTA / WRAP ============== */
+  .insight-card.unstable .insight-tag { color: var(--rust); }
+  .insight-card.top-roi  .insight-tag { color: var(--gold); }
+  .insight-card.quick    .insight-tag { color: var(--moss-bright); }
+
+  .insight-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--paper);
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+  }
+
+  .insight-meta {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.05em;
+    color: rgba(244, 239, 230, 0.45);
+    margin-bottom: 6px;
+  }
+
+  .insight-action {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: rgba(244, 239, 230, 0.82);
+  }
+
+  .insight-roi {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 6px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .insight-card.unstable .insight-roi { color: var(--rust);        background: rgba(194, 90, 60, 0.12); }
+  .insight-card.top-roi  .insight-roi { color: var(--gold);        background: rgba(212, 166, 74, 0.14); }
+  .insight-card.quick    .insight-roi { color: var(--moss-bright); background: rgba(109, 212, 154, 0.14); }
+
+  /* ============== SLIDE 9: CTA / WRAP ============== */
   .slide-cta {
     display: grid;
     grid-template-columns: 1.4fr 1fr;
@@ -1527,89 +1460,74 @@
       </div>
     </section>
 
-    <!-- ============== SLIDE 8: JIRA INTENT COVERAGE (deep-dive) ============== -->
-    <section class="slide slide-jira" data-duration="11000">
+    <!-- ============== SLIDE 8: AI TEST-FAILURE INSIGHTS (deep-dive) ============== -->
+    <section class="slide slide-insights" data-duration="11000">
       <div>
-        <div class="vision-tag reveal reveal-1">Coming Soon &middot; Jira Integration</div>
-        <h2 class="display jira-title reveal reveal-2">
-          Do your tests<br>match what the<br>ticket <em>asked for?</em>
+        <div class="vision-tag reveal reveal-1">Coming Soon &middot; AI Insights</div>
+        <h2 class="display insights-title reveal reveal-2">
+          Fix what<br><em>hurts</em><br>most.
         </h2>
         <p class="vision-quote reveal reveal-3">
-          Fern reads the Jira description and acceptance criteria, walks your tests, and tells you the gaps &mdash; with a confidence score on how well intent is covered.
+          Fern weighs every flake, retry, and minute lost &mdash; then ranks the fixes that recover the most CI time per hour invested. No more guessing where to start.
         </p>
       </div>
 
-      <!-- Mock UI: side-by-side ticket + AI analysis -->
-      <div class="jira-mock reveal reveal-4">
-        <div class="jira-mock-header">
+      <!-- Mock UI: AI insights dashboard -->
+      <div class="insights-mock reveal reveal-4">
+        <div class="insights-mock-header">
           <span class="ctrl-dot"></span>
           <span class="ctrl-dot"></span>
           <span class="ctrl-dot"></span>
-          <span class="ctrl-url">fern-platform.local / coverage / auth-1247</span>
+          <span class="ctrl-url">fern-platform.local / insights / auth-service</span>
         </div>
-        <div class="jira-mock-body">
+        <div class="insights-body">
 
-          <!-- LEFT: Jira ticket panel -->
-          <div class="jira-panel">
-            <div class="jira-chip">AUTH-1247 &middot; Story</div>
-            <div class="jira-pad-title">User can reset password via emailed link</div>
-            <div class="jira-section-label">Description</div>
-            <p class="jira-pad-text">When a user clicks "Forgot password", they receive a one-time email link. The link is single-use and expires after 30 minutes.</p>
-            <div class="jira-section-label">Acceptance Criteria</div>
-            <ul class="jira-ac">
-              <li>AC1 &middot; Email sent within 5s of request</li>
-              <li>AC2 &middot; Link expires after 30 minutes</li>
-              <li>AC3 &middot; Link cannot be reused after consumption</li>
-              <li>AC4 &middot; Unknown email returns 200 (no enumeration)</li>
-            </ul>
-          </div>
-
-          <!-- RIGHT: AI test-coverage analysis -->
-          <div class="ai-panel">
-            <div class="ai-header">
-              <div class="ai-label">Test intent coverage</div>
-              <div class="ai-score"><span class="num">78</span><span class="pct">%</span></div>
-            </div>
-            <div class="ai-rows">
-              <div class="ai-row covered">
-                <span class="ai-row-mark">&#9679;</span>
-                <div>
-                  <div class="ai-row-name">AC1 &mdash; Email delivery latency</div>
-                  <div class="ai-row-meta">3 tests &middot; all covered</div>
-                </div>
-                <span class="ai-row-check">&#10003;</span>
-              </div>
-              <div class="ai-row covered">
-                <span class="ai-row-mark">&#9679;</span>
-                <div>
-                  <div class="ai-row-name">AC2 &mdash; Expiry behaviour</div>
-                  <div class="ai-row-meta">2 tests &middot; happy path</div>
-                </div>
-                <span class="ai-row-check">&#10003;</span>
-              </div>
-              <div class="ai-row partial">
-                <span class="ai-row-mark">&#9679;</span>
-                <div>
-                  <div class="ai-row-name">AC3 &mdash; Single-use link</div>
-                  <div class="ai-row-meta">negative path missing</div>
-                </div>
-                <span class="ai-row-check">&#9888;</span>
-              </div>
-              <div class="ai-row missing">
-                <span class="ai-row-mark">&#9679;</span>
-                <div>
-                  <div class="ai-row-name">AC4 &mdash; Enumeration safety</div>
-                  <div class="ai-row-meta">no tests detected</div>
-                </div>
-                <span class="ai-row-check">&#10007;</span>
-              </div>
-            </div>
-            <div class="ai-recommend">
-              <span class="ai-recommend-label">Suggestion</span>
-              Add a test asserting unknown email returns 200 to close AC4.
+          <!-- HERO STRIP: total recoverable CI time -->
+          <div class="insights-summary">
+            <div class="ins-summary-value"><span class="num">14</span><span class="unit">hr</span></div>
+            <div class="ins-summary-text">
+              <div class="lbl">Recoverable CI time / week</div>
+              <div class="det">14 unstable tests &middot; 3 actionable fixes &middot; ranked by ROI</div>
             </div>
           </div>
 
+          <!-- INSIGHT CARDS -->
+          <div class="insight-cards">
+
+            <!-- Card 1: most unpredictable test -->
+            <div class="insight-card unstable">
+              <div>
+                <div class="insight-tag">Most unpredictable test</div>
+                <div class="insight-title">TestSessionRefresh</div>
+                <div class="insight-meta">14% flake rate &middot; 3.2 hr/wk lost to retries</div>
+                <div class="insight-action">Isolate the wall-clock dependency on token expiry &mdash; the test races real time.</div>
+              </div>
+              <div class="insight-roi">+3.2 hr/wk</div>
+            </div>
+
+            <!-- Card 2: highest-ROI fix -->
+            <div class="insight-card top-roi">
+              <div>
+                <div class="insight-tag">Highest-ROI fix</div>
+                <div class="insight-title">Shared DB fixture in integration suite</div>
+                <div class="insight-meta">68 tests affected &middot; 11 cascading retries last week</div>
+                <div class="insight-action">One change pays back across the suite: replace the shared fixture with per-test transactions.</div>
+              </div>
+              <div class="insight-roi">+8.1 hr/wk</div>
+            </div>
+
+            <!-- Card 3: quick win -->
+            <div class="insight-card quick">
+              <div>
+                <div class="insight-tag">Quick win</div>
+                <div class="insight-title">Hardcoded sleeps in payments tests</div>
+                <div class="insight-meta">6 tests &middot; ~4 min wasted every CI run</div>
+                <div class="insight-action">Swap fixed sleeps for event-driven waits. Small change, immediate payoff.</div>
+              </div>
+              <div class="insight-roi">+2.4 hr/wk</div>
+            </div>
+
+          </div>
         </div>
       </div>
     </section>
