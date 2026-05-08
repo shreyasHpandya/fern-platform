@@ -1,1356 +1,1507 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fern Platform — Trivia</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --ink: #0a1410;
-    --ink-2: #0f1d18;
-    --ink-3: #142922;
-    --paper: #f4efe6;
-    --paper-2: #e8e0d1;
-    --moss: #4a8a5f;
-    --moss-bright: #6dd49a;
-    --moss-deep: #1f4a30;
-    --gold: #d4a64a;
-    --rust: #c25a3c;
-    --line: rgba(244, 239, 230, 0.12);
-    --line-strong: rgba(244, 239, 230, 0.25);
-    --serif: 'Fraunces', 'Times New Roman', serif;
-    --sans: 'Inter Tight', system-ui, sans-serif;
-    --mono: 'JetBrains Mono', monospace;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fern Platform — Trivia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0a1410;
+      --ink-2: #0f1d18;
+      --ink-3: #142922;
+      --paper: #f4efe6;
+      --paper-2: #e8e0d1;
+      --moss: #4a8a5f;
+      --moss-bright: #6dd49a;
+      --moss-deep: #1f4a30;
+      --gold: #d4a64a;
+      --rust: #c25a3c;
+      --line: rgba(244, 239, 230, 0.12);
+      --line-strong: rgba(244, 239, 230, 0.25);
+      --serif: 'Fraunces', 'Times New Roman', serif;
+      --sans: 'Inter Tight', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============== STAGE ============== */
+    .stage {
+      position: fixed;
+      inset: 0;
+      overflow: auto;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(74, 138, 95, 0.12), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(31, 74, 48, 0.18), transparent 60%),
+        var(--ink);
+    }
+
+    .stage::before {
+      content: "";
+      position: fixed;
+      inset: -50%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+      opacity: 0.04;
+      mix-blend-mode: overlay;
+      animation: grain 8s steps(8) infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes grain {
+
+      0%,
+      100% {
+        transform: translate(0, 0);
+      }
+
+      10% {
+        transform: translate(-5%, -10%);
+      }
+
+      30% {
+        transform: translate(3%, -15%);
+      }
+
+      50% {
+        transform: translate(12%, 9%);
+      }
+
+      70% {
+        transform: translate(-7%, 4%);
+      }
+
+      90% {
+        transform: translate(8%, -3%);
+      }
+    }
+
+    /* ============== CHROME ============== */
+    .chrome {
+      position: fixed;
+      z-index: 100;
+      pointer-events: none;
+    }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html, body {
-    min-height: 100%;
-    background: var(--ink);
-    color: var(--paper);
-    font-family: var(--sans);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ============== STAGE ============== */
-  .stage {
-    position: fixed;
-    inset: 0;
-    overflow: auto;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 30%, rgba(74, 138, 95, 0.12), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 70%, rgba(31, 74, 48, 0.18), transparent 60%),
-      var(--ink);
-  }
-
-  .stage::before {
-    content: "";
-    position: fixed;
-    inset: -50%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-    opacity: 0.04;
-    mix-blend-mode: overlay;
-    animation: grain 8s steps(8) infinite;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  @keyframes grain {
-    0%, 100% { transform: translate(0, 0); }
-    10% { transform: translate(-5%, -10%); }
-    30% { transform: translate(3%, -15%); }
-    50% { transform: translate(12%, 9%); }
-    70% { transform: translate(-7%, 4%); }
-    90% { transform: translate(8%, -3%); }
-  }
-
-  /* ============== CHROME ============== */
-  .chrome {
-    position: fixed;
-    z-index: 100;
-    pointer-events: none;
-  }
-
-  .chrome.top-left {
-    top: 36px; left: 48px;
-    display: flex; align-items: center; gap: 14px;
-  }
-
-  .logo-mark { width: 38px; height: 38px; }
-  .logo-mark svg { width: 100%; height: 100%; }
-
-  .logo-text {
-    font-family: var(--serif);
-    font-weight: 600;
-    font-size: 22px;
-    letter-spacing: -0.02em;
-  }
-
-  .logo-text em {
-    font-style: italic;
-    font-weight: 400;
-    color: var(--moss-bright);
-  }
-
-  .chrome.top-right {
-    top: 36px; right: 48px;
-    text-align: right;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.55);
-  }
-
-  .chrome.top-right .live-dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--moss-bright);
-    margin-right: 8px;
-    vertical-align: middle;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(109, 212, 154, 0.5); }
-    50% { opacity: 0.6; box-shadow: 0 0 0 8px rgba(109, 212, 154, 0); }
-  }
-
-  .chrome.bottom-left {
-    bottom: 36px; left: 48px;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.45);
-  }
-
-  .chrome.bottom-right {
-    bottom: 36px; right: 48px;
-    display: flex; gap: 16px;
-    align-items: center;
-  }
-
-  .progress-bar {
-    width: 240px;
-    height: 2px;
-    background: rgba(244, 239, 230, 0.1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, var(--moss), var(--moss-bright));
-    transform-origin: left;
-    transform: scaleX(0);
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .step-counter {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    color: rgba(244, 239, 230, 0.55);
-  }
-
-  /* ============== SCREENS ============== */
-  .screens {
-    position: relative;
-    min-height: 100vh;
-    z-index: 1;
-  }
-
-  .screen {
-    position: absolute;
-    inset: 0;
-    padding: 140px 100px 120px;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-                visibility 0s 0.7s;
-    display: flex;
-  }
-
-  .screen.active {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-                visibility 0s;
-  }
-
-  .screen .reveal {
-    opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.9s cubic-bezier(0.2, 0.6, 0.2, 1),
-                transform 0.9s cubic-bezier(0.2, 0.6, 0.2, 1);
-  }
-
-  .screen.active .reveal {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .screen.active .reveal-1 { transition-delay: 0.10s; }
-  .screen.active .reveal-2 { transition-delay: 0.25s; }
-  .screen.active .reveal-3 { transition-delay: 0.40s; }
-  .screen.active .reveal-4 { transition-delay: 0.55s; }
-  .screen.active .reveal-5 { transition-delay: 0.70s; }
-
-  /* ============== TYPOGRAPHY ============== */
-  .eyebrow {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--moss-bright);
-    margin-bottom: 32px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .eyebrow::before {
-    content: "";
-    display: inline-block;
-    width: 36px; height: 1px;
-    background: var(--moss-bright);
-  }
-
-  .display {
-    font-family: var(--serif);
-    font-weight: 400;
-    line-height: 0.98;
-    letter-spacing: -0.035em;
-  }
-
-  .display em {
-    font-style: italic;
-    font-weight: 300;
-    color: var(--moss-bright);
-  }
-
-  /* ============== START SCREEN ============== */
-  .screen-start {
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .start-inner { max-width: 900px; width: 100%; }
-
-  .start-title {
-    font-size: clamp(56px, 7vw, 112px);
-    margin-bottom: 32px;
-  }
-
-  .start-tagline {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 300;
-    font-size: 24px;
-    line-height: 1.4;
-    color: rgba(244, 239, 230, 0.75);
-    max-width: 620px;
-    margin: 0 auto 56px;
-  }
-
-  .start-meta {
-    display: flex;
-    gap: 56px;
-    justify-content: center;
-    padding-top: 32px;
-    border-top: 1px solid var(--line);
-    margin-bottom: 56px;
-  }
-
-  .start-meta-item .label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.5);
-    margin-bottom: 6px;
-  }
-
-  .start-meta-item .value {
-    font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 500;
-  }
-
-  /* ============== BUTTONS ============== */
-  .btn-primary {
-    pointer-events: auto;
-    background: var(--moss-bright);
-    color: var(--ink);
-    border: none;
-    padding: 18px 40px;
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.25s ease;
-    box-shadow: 0 0 0 0 rgba(109, 212, 154, 0.4);
-  }
-
-  .btn-primary:hover {
-    background: var(--paper);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(109, 212, 154, 0.25);
-  }
-
-  .btn-primary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  /* ============== QUESTION SCREEN ============== */
-  .screen-question {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .q-inner {
-    max-width: 900px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 36px;
-  }
-
-  .q-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-  }
-
-  .q-index { color: rgba(244, 239, 230, 0.55); }
-
-  .difficulty-chip {
-    padding: 6px 14px;
-    border: 1px solid currentColor;
-    border-radius: 2px;
-    font-weight: 600;
-  }
-
-  .difficulty-chip.easy { color: var(--moss-bright); }
-  .difficulty-chip.medium { color: var(--gold); }
-  .difficulty-chip.hard { color: var(--rust); }
-
-  .q-prompt {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(32px, 4.5vw, 56px);
-    line-height: 1.15;
-    letter-spacing: -0.025em;
-  }
-
-  .q-options {
-    display: grid;
-    gap: 14px;
-  }
-
-  .option {
-    pointer-events: auto;
-    display: grid;
-    grid-template-columns: 44px 1fr 28px;
-    gap: 18px;
-    align-items: center;
-    padding: 22px 24px;
-    background: rgba(20, 41, 34, 0.35);
-    border: 1px solid var(--line);
-    border-radius: 2px;
-    color: var(--paper);
-    font-family: var(--sans);
-    font-size: 18px;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: 100%;
-  }
-
-  .option:hover:not(:disabled) {
-    border-color: var(--moss-bright);
-    background: rgba(74, 138, 95, 0.18);
-    transform: translateX(4px);
-  }
-
-  .option .key {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: rgba(244, 239, 230, 0.5);
-    text-align: center;
-  }
-
-  .option .glyph {
-    font-family: var(--mono);
-    font-size: 16px;
-    text-align: center;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  .option.correct {
-    border-color: var(--moss-bright);
-    background: rgba(109, 212, 154, 0.12);
-    color: var(--moss-bright);
-  }
-
-  .option.correct .key { color: var(--moss-bright); }
-  .option.correct .glyph { opacity: 1; color: var(--moss-bright); }
-
-  .option.wrong {
-    border-color: var(--rust);
-    background: rgba(194, 90, 60, 0.12);
-    color: var(--rust);
-  }
-
-  .option.wrong .key { color: var(--rust); }
-  .option.wrong .glyph { opacity: 1; color: var(--rust); }
-
-  .option:disabled {
-    cursor: default;
-  }
-
-  .option:disabled:not(.correct):not(.wrong) {
-    opacity: 0.45;
-  }
-
-  .q-actions {
-    display: flex;
-    justify-content: flex-end;
-    min-height: 56px;
-  }
-
-  /* ============== RESULTS SCREEN ============== */
-  .screen-results {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .r-inner {
-    max-width: 900px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 32px;
-  }
-
-  .r-score {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(140px, 22vw, 320px);
-    line-height: 0.9;
-    letter-spacing: -0.04em;
-    color: var(--moss-bright);
-  }
-
-  .r-score .total {
-    color: rgba(244, 239, 230, 0.4);
-    font-size: 0.42em;
-    margin-left: 8px;
-  }
-
-  .r-band {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 300;
-    font-size: clamp(32px, 4vw, 56px);
-    line-height: 1.2;
-    color: var(--paper);
-    max-width: 720px;
-  }
-
-  .r-actions {
-    display: flex;
-    gap: 32px;
-    justify-content: center;
-    align-items: center;
-    padding-top: 32px;
-    flex-wrap: wrap;
-  }
-
-  .r-actions .gh-link {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.6);
-    text-decoration: none;
-    transition: color 0.2s ease;
-    pointer-events: auto;
-  }
-
-  .r-actions .gh-link:hover { color: var(--moss-bright); }
-
-  /* ============== GATE SCREEN ============== */
-  .screen-gate {
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .gate-score-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.5);
-    margin-bottom: 12px;
-  }
-
-  .gate-score {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(96px, 14vw, 200px);
-    line-height: 0.9;
-    letter-spacing: -0.04em;
-    color: var(--moss-bright);
-    margin-bottom: 24px;
-  }
-
-  .gate-score .total {
-    color: rgba(244, 239, 230, 0.4);
-    font-size: 0.42em;
-    margin-left: 8px;
-  }
-
-  .gate-message {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 300;
-    font-size: clamp(22px, 2.6vw, 34px);
-    line-height: 1.35;
-    color: var(--paper);
-    max-width: 640px;
-    margin: 0 auto 24px;
-  }
-
-  .gate-message.locked { color: var(--gold); }
-
-  .gate-action {
-    margin: 8px 0 24px;
-    min-height: 64px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .gate-countdown {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.55);
-    display: inline-flex;
-    align-items: baseline;
-    gap: 14px;
-  }
-
-  .gate-countdown .time {
-    font-family: var(--mono);
-    font-size: 26px;
-    color: var(--moss-bright);
-    letter-spacing: 0.08em;
-    font-weight: 500;
-  }
-
-  .gate-attempts {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: rgba(244, 239, 230, 0.4);
-  }
-
-  /* ============== RESPONSIVE ============== */
-
-  /* Tablet: tighten padding, keep corner chrome layout */
-  @media (max-width: 900px) {
-    .screen { padding: 110px 32px 100px; }
-    .chrome.top-left { top: 24px; left: 24px; }
-    .chrome.top-right { top: 24px; right: 24px; }
-    .chrome.bottom-left { bottom: 24px; left: 24px; }
-    .chrome.bottom-right { bottom: 24px; right: 24px; }
-    .progress-bar { width: 140px; }
-    .start-meta { flex-direction: column; gap: 24px; }
-  }
-
-  /* Phone: corners overlap. Stack everything centered, drop secondary chrome. */
-  @media (max-width: 700px) {
-    .screen { padding: 90px 20px 80px; }
-
-    /* Center the logo at top, hide the QUIZ tag */
     .chrome.top-left {
-      top: 18px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 36px;
+      left: 48px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+    }
+
+    .logo-mark svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-text {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--moss-bright);
+    }
+
+    .chrome.top-right {
+      top: 36px;
+      right: 48px;
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(244, 239, 230, 0.55);
+    }
+
+    .chrome.top-right .live-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--moss-bright);
+      margin-right: 8px;
+      vertical-align: middle;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(109, 212, 154, 0.5);
+      }
+
+      50% {
+        opacity: 0.6;
+        box-shadow: 0 0 0 8px rgba(109, 212, 154, 0);
+      }
+    }
+
+    .chrome.bottom-left {
+      bottom: 36px;
+      left: 48px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(244, 239, 230, 0.45);
+    }
+
+    .chrome.bottom-right {
+      bottom: 36px;
+      right: 48px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .progress-bar {
+      width: 240px;
+      height: 2px;
+      background: rgba(244, 239, 230, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--moss), var(--moss-bright));
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step-counter {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: rgba(244, 239, 230, 0.55);
+    }
+
+    /* ============== SCREENS ============== */
+    .screens {
+      position: relative;
+      min-height: 100vh;
+      z-index: 1;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      padding: 140px 100px 120px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0s 0.7s;
+      display: flex;
+    }
+
+    .screen.active {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0s;
+    }
+
+    .screen .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.9s cubic-bezier(0.2, 0.6, 0.2, 1),
+        transform 0.9s cubic-bezier(0.2, 0.6, 0.2, 1);
+    }
+
+    .screen.active .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .screen.active .reveal-1 {
+      transition-delay: 0.10s;
+    }
+
+    .screen.active .reveal-2 {
+      transition-delay: 0.25s;
+    }
+
+    .screen.active .reveal-3 {
+      transition-delay: 0.40s;
+    }
+
+    .screen.active .reveal-4 {
+      transition-delay: 0.55s;
+    }
+
+    .screen.active .reveal-5 {
+      transition-delay: 0.70s;
+    }
+
+    /* ============== TYPOGRAPHY ============== */
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--moss-bright);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      display: inline-block;
+      width: 36px;
+      height: 1px;
+      background: var(--moss-bright);
+    }
+
+    .display {
+      font-family: var(--serif);
+      font-weight: 400;
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+    }
+
+    .display em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--moss-bright);
+    }
+
+    /* ============== START SCREEN ============== */
+    .screen-start {
+      align-items: center;
       justify-content: center;
+      flex-direction: column;
       text-align: center;
     }
-    .chrome.top-right { display: none; }
 
-    /* Center the progress bar at bottom, hide the github URL */
-    .chrome.bottom-left { display: none; }
-    .chrome.bottom-right {
-      bottom: 18px;
-      right: auto;
-      left: 50%;
-      transform: translateX(-50%);
+    .start-inner {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .start-title {
+      font-size: clamp(56px, 7vw, 112px);
+      margin-bottom: 32px;
+    }
+
+    .start-tagline {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 24px;
+      line-height: 1.4;
+      color: rgba(244, 239, 230, 0.75);
+      max-width: 620px;
+      margin: 0 auto 56px;
+    }
+
+    .start-meta {
+      display: flex;
+      gap: 56px;
+      justify-content: center;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+      margin-bottom: 56px;
+    }
+
+    .start-meta-item .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(244, 239, 230, 0.5);
+      margin-bottom: 6px;
+    }
+
+    .start-meta-item .value {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    /* ============== BUTTONS ============== */
+    .btn-primary {
+      pointer-events: auto;
+      background: var(--moss-bright);
+      color: var(--ink);
+      border: none;
+      padding: 18px 40px;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 0 0 rgba(109, 212, 154, 0.4);
+    }
+
+    .btn-primary:hover {
+      background: var(--paper);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(109, 212, 154, 0.25);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ============== QUESTION SCREEN ============== */
+    .screen-question {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .q-inner {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .q-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    .q-index {
+      color: rgba(244, 239, 230, 0.55);
+    }
+
+    .difficulty-chip {
+      padding: 6px 14px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+
+    .difficulty-chip.easy {
+      color: var(--moss-bright);
+    }
+
+    .difficulty-chip.medium {
+      color: var(--gold);
+    }
+
+    .difficulty-chip.hard {
+      color: var(--rust);
+    }
+
+    .q-prompt {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(32px, 4.5vw, 56px);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+
+    .q-options {
+      display: grid;
+      gap: 14px;
+    }
+
+    .option {
+      pointer-events: auto;
+      display: grid;
+      grid-template-columns: 44px 1fr 28px;
+      gap: 18px;
+      align-items: center;
+      padding: 22px 24px;
+      background: rgba(20, 41, 34, 0.35);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      color: var(--paper);
+      font-family: var(--sans);
+      font-size: 18px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .option:hover:not(:disabled) {
+      border-color: var(--moss-bright);
+      background: rgba(74, 138, 95, 0.18);
+      transform: translateX(4px);
+    }
+
+    .option .key {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: rgba(244, 239, 230, 0.5);
+      text-align: center;
+    }
+
+    .option .glyph {
+      font-family: var(--mono);
+      font-size: 16px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .option.correct {
+      border-color: var(--moss-bright);
+      background: rgba(109, 212, 154, 0.12);
+      color: var(--moss-bright);
+    }
+
+    .option.correct .key {
+      color: var(--moss-bright);
+    }
+
+    .option.correct .glyph {
+      opacity: 1;
+      color: var(--moss-bright);
+    }
+
+    .option.wrong {
+      border-color: var(--rust);
+      background: rgba(194, 90, 60, 0.12);
+      color: var(--rust);
+    }
+
+    .option.wrong .key {
+      color: var(--rust);
+    }
+
+    .option.wrong .glyph {
+      opacity: 1;
+      color: var(--rust);
+    }
+
+    .option:disabled {
+      cursor: default;
+    }
+
+    .option:disabled:not(.correct):not(.wrong) {
+      opacity: 0.45;
+    }
+
+    .q-actions {
+      display: flex;
+      justify-content: flex-end;
+      min-height: 56px;
+    }
+
+    /* ============== RESULTS SCREEN ============== */
+    .screen-results {
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
     }
-    .progress-bar { width: 160px; }
 
-    /* Stack actions on results & gate so they don't crowd horizontally */
-    .r-actions { flex-direction: column; gap: 18px; padding-top: 24px; }
-    .start-meta { gap: 18px; }
-  }
+    .r-inner {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 32px;
+    }
 
-  /* Small phone: shrink chrome typography and progress bar */
-  @media (max-width: 480px) {
-    .screen { padding: 84px 16px 76px; }
-    .logo-mark { width: 30px; height: 30px; }
-    .logo-text { font-size: 18px; }
-    .progress-bar { width: 120px; }
-    .step-counter { font-size: 10px; }
+    .r-score {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(140px, 22vw, 320px);
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      color: var(--moss-bright);
+    }
 
-    /* Question screen: tighter option grid */
-    .option { grid-template-columns: 36px 1fr 22px; padding: 18px 16px; font-size: 16px; gap: 12px; }
+    .r-score .total {
+      color: rgba(244, 239, 230, 0.4);
+      font-size: 0.42em;
+      margin-left: 8px;
+    }
 
-    /* Gate / results: keep score from getting too tall */
-    .gate-score { margin-bottom: 16px; }
-    .gate-message { font-size: 20px; }
-  }
-</style>
+    .r-band {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 1.2;
+      color: var(--paper);
+      max-width: 720px;
+    }
+
+    .r-actions {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      align-items: center;
+      padding-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .r-actions .gh-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(244, 239, 230, 0.6);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      pointer-events: auto;
+    }
+
+    .r-actions .gh-link:hover {
+      color: var(--moss-bright);
+    }
+
+    /* ============== GATE SCREEN ============== */
+    .screen-gate {
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .gate-score-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(244, 239, 230, 0.5);
+      margin-bottom: 12px;
+    }
+
+    .gate-score {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(96px, 14vw, 200px);
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      color: var(--moss-bright);
+      margin-bottom: 24px;
+    }
+
+    .gate-score .total {
+      color: rgba(244, 239, 230, 0.4);
+      font-size: 0.42em;
+      margin-left: 8px;
+    }
+
+    .gate-message {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(22px, 2.6vw, 34px);
+      line-height: 1.35;
+      color: var(--paper);
+      max-width: 640px;
+      margin: 0 auto 24px;
+    }
+
+    .gate-message.locked {
+      color: var(--gold);
+    }
+
+    .gate-action {
+      margin: 8px 0 24px;
+      min-height: 64px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gate-countdown {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(244, 239, 230, 0.55);
+      display: inline-flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .gate-countdown .time {
+      font-family: var(--mono);
+      font-size: 26px;
+      color: var(--moss-bright);
+      letter-spacing: 0.08em;
+      font-weight: 500;
+    }
+
+    .gate-attempts {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(244, 239, 230, 0.4);
+    }
+
+    /* ============== RESPONSIVE ============== */
+
+    /* Tablet: tighten padding, keep corner chrome layout */
+    @media (max-width: 900px) {
+      .screen {
+        padding: 110px 32px 100px;
+      }
+
+      .chrome.top-left {
+        top: 24px;
+        left: 24px;
+      }
+
+      .chrome.top-right {
+        top: 24px;
+        right: 24px;
+      }
+
+      .chrome.bottom-left {
+        bottom: 24px;
+        left: 24px;
+      }
+
+      .chrome.bottom-right {
+        bottom: 24px;
+        right: 24px;
+      }
+
+      .progress-bar {
+        width: 140px;
+      }
+
+      .start-meta {
+        flex-direction: column;
+        gap: 24px;
+      }
+    }
+
+    /* Phone: corners overlap. Stack everything centered, drop secondary chrome. */
+    @media (max-width: 700px) {
+      .screen {
+        padding: 90px 20px 80px;
+      }
+
+      /* Center the logo at top, hide the QUIZ tag */
+      .chrome.top-left {
+        top: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        justify-content: center;
+        text-align: center;
+      }
+
+      .chrome.top-right {
+        display: none;
+      }
+
+      /* Center the progress bar at bottom, hide the github URL */
+      .chrome.bottom-left {
+        display: none;
+      }
+
+      .chrome.bottom-right {
+        bottom: 18px;
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        justify-content: center;
+      }
+
+      .progress-bar {
+        width: 160px;
+      }
+
+      /* Stack actions on results & gate so they don't crowd horizontally */
+      .r-actions {
+        flex-direction: column;
+        gap: 18px;
+        padding-top: 24px;
+      }
+
+      .start-meta {
+        gap: 18px;
+      }
+    }
+
+    /* Small phone: shrink chrome typography and progress bar */
+    @media (max-width: 480px) {
+      .screen {
+        padding: 84px 16px 76px;
+      }
+
+      .logo-mark {
+        width: 30px;
+        height: 30px;
+      }
+
+      .logo-text {
+        font-size: 18px;
+      }
+
+      .progress-bar {
+        width: 120px;
+      }
+
+      .step-counter {
+        font-size: 10px;
+      }
+
+      /* Question screen: tighter option grid */
+      .option {
+        grid-template-columns: 36px 1fr 22px;
+        padding: 18px 16px;
+        font-size: 16px;
+        gap: 12px;
+      }
+
+      /* Gate / results: keep score from getting too tall */
+      .gate-score {
+        margin-bottom: 16px;
+      }
+
+      .gate-message {
+        font-size: 20px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="stage">
+  <div class="stage">
 
-  <!-- ============== CHROME ============== -->
-  <div class="chrome top-left">
-    <div class="logo-mark">
-      <svg viewBox="0 0 40 40" fill="none">
-        <path d="M20 36 C20 36, 8 30, 8 18 C8 10, 14 6, 20 6 C26 6, 32 10, 32 18 C32 30, 20 36, 20 36 Z" stroke="#6dd49a" stroke-width="1.2" fill="none" opacity="0.4"/>
-        <path d="M20 4 L20 36" stroke="#6dd49a" stroke-width="1"/>
-        <path d="M20 8 Q14 11 12 16" stroke="#6dd49a" stroke-width="1" fill="none"/>
-        <path d="M20 8 Q26 11 28 16" stroke="#6dd49a" stroke-width="1" fill="none"/>
-        <path d="M20 14 Q14 17 11 22" stroke="#6dd49a" stroke-width="1" fill="none"/>
-        <path d="M20 14 Q26 17 29 22" stroke="#6dd49a" stroke-width="1" fill="none"/>
-        <path d="M20 20 Q14 23 12 28" stroke="#6dd49a" stroke-width="1" fill="none"/>
-        <path d="M20 20 Q26 23 28 28" stroke="#6dd49a" stroke-width="1" fill="none"/>
-        <path d="M20 26 Q15 28 14 32" stroke="#6dd49a" stroke-width="1" fill="none"/>
-        <path d="M20 26 Q25 28 26 32" stroke="#6dd49a" stroke-width="1" fill="none"/>
-      </svg>
+    <!-- ============== CHROME ============== -->
+    <div class="chrome top-left">
+      <div class="logo-mark">
+        <svg viewBox="0 0 40 40" fill="none">
+          <path d="M20 36 C20 36, 8 30, 8 18 C8 10, 14 6, 20 6 C26 6, 32 10, 32 18 C32 30, 20 36, 20 36 Z"
+            stroke="#6dd49a" stroke-width="1.2" fill="none" opacity="0.4" />
+          <path d="M20 4 L20 36" stroke="#6dd49a" stroke-width="1" />
+          <path d="M20 8 Q14 11 12 16" stroke="#6dd49a" stroke-width="1" fill="none" />
+          <path d="M20 8 Q26 11 28 16" stroke="#6dd49a" stroke-width="1" fill="none" />
+          <path d="M20 14 Q14 17 11 22" stroke="#6dd49a" stroke-width="1" fill="none" />
+          <path d="M20 14 Q26 17 29 22" stroke="#6dd49a" stroke-width="1" fill="none" />
+          <path d="M20 20 Q14 23 12 28" stroke="#6dd49a" stroke-width="1" fill="none" />
+          <path d="M20 20 Q26 23 28 28" stroke="#6dd49a" stroke-width="1" fill="none" />
+          <path d="M20 26 Q15 28 14 32" stroke="#6dd49a" stroke-width="1" fill="none" />
+          <path d="M20 26 Q25 28 26 32" stroke="#6dd49a" stroke-width="1" fill="none" />
+        </svg>
+      </div>
+      <div class="logo-text">Fern <em>Trivia</em></div>
     </div>
-    <div class="logo-text">Fern <em>Trivia</em></div>
-  </div>
 
-  <div class="chrome top-right">
-    <span class="live-dot"></span>QUIZ &middot; 7 QUESTIONS &middot; 100 PTS
-  </div>
+    <div class="chrome top-right">
+      <span class="live-dot"></span>QUIZ &middot; 7 QUESTIONS &middot; 100 PTS
+    </div>
 
-  <div class="chrome bottom-left">
-    github.com/guidewire-oss/fern-platform
-  </div>
+    <div class="chrome bottom-left">
+      github.com/guidewire-oss/fern-platform
+    </div>
 
-  <div class="chrome bottom-right">
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="step-counter"><span id="step-current">00</span> / <span id="step-total">07</span></div>
-  </div>
+    <div class="chrome bottom-right">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="step-counter"><span id="step-current">00</span> / <span id="step-total">07</span></div>
+    </div>
 
-  <!-- ============== SCREENS ============== -->
-  <main class="screens">
+    <!-- ============== SCREENS ============== -->
+    <main class="screens">
 
-    <!-- START -->
-    <section class="screen screen-start active" id="screen-start">
-      <div class="start-inner">
-        <div class="eyebrow reveal reveal-1">Fern Platform Trivia</div>
-        <h1 class="display start-title reveal reveal-2">
-          How well do you<br>know the <em>fern?</em>
-        </h1>
-        <div class="start-meta reveal reveal-3">
-          <div class="start-meta-item">
-            <div class="label">Questions</div>
-            <div class="value">7</div>
+      <!-- START -->
+      <section class="screen screen-start active" id="screen-start">
+        <div class="start-inner">
+          <div class="eyebrow reveal reveal-1">Fern Platform Trivia</div>
+          <h1 class="display start-title reveal reveal-2">
+            How well do you<br>know the <em>fern?</em>
+          </h1>
+          <div class="start-meta reveal reveal-3">
+            <div class="start-meta-item">
+              <div class="label">Questions</div>
+              <div class="value">7</div>
+            </div>
+            <div class="start-meta-item">
+              <div class="label">Total points</div>
+              <div class="value">100</div>
+            </div>
+            <div class="start-meta-item">
+              <div class="label">Time</div>
+              <div class="value">~2 min</div>
+            </div>
           </div>
-          <div class="start-meta-item">
-            <div class="label">Total points</div>
-            <div class="value">100</div>
+          <button class="btn-primary reveal reveal-4" id="btn-begin">Begin &rarr;</button>
+        </div>
+      </section>
+
+      <!-- GATE (shown when localStorage state exists) -->
+      <section class="screen screen-gate" id="screen-gate">
+        <div class="start-inner">
+          <div class="eyebrow reveal reveal-1">You&rsquo;re back.</div>
+          <div class="gate-score-label reveal reveal-2">Your last score</div>
+          <div class="gate-score reveal reveal-2">
+            <span id="gate-score">0</span><span class="total"> / 100</span>
           </div>
-          <div class="start-meta-item">
-            <div class="label">Time</div>
-            <div class="value">~2 min</div>
+          <p class="gate-message reveal reveal-3" id="gate-message"></p>
+          <div class="gate-action reveal reveal-4" id="gate-action"></div>
+          <div class="gate-attempts reveal reveal-5" id="gate-attempts"></div>
+        </div>
+      </section>
+
+      <!-- QUESTION -->
+      <section class="screen screen-question" id="screen-question">
+        <div class="q-inner">
+          <div class="q-meta reveal reveal-1">
+            <span class="q-index" id="q-index">01 / 07</span>
+            <span class="difficulty-chip" id="q-chip">EASY</span>
+          </div>
+          <h2 class="q-prompt reveal reveal-2" id="q-prompt"></h2>
+          <div class="q-options reveal reveal-3" id="q-options"></div>
+          <div class="q-actions reveal reveal-4">
+            <button class="btn-primary" id="btn-next" style="display:none;">Next &rarr;</button>
           </div>
         </div>
-        <button class="btn-primary reveal reveal-4" id="btn-begin">Begin &rarr;</button>
-      </div>
-    </section>
+      </section>
 
-    <!-- GATE (shown when localStorage state exists) -->
-    <section class="screen screen-gate" id="screen-gate">
-      <div class="start-inner">
-        <div class="eyebrow reveal reveal-1">You&rsquo;re back.</div>
-        <div class="gate-score-label reveal reveal-2">Your last score</div>
-        <div class="gate-score reveal reveal-2">
-          <span id="gate-score">0</span><span class="total"> / 100</span>
+      <!-- RESULTS -->
+      <section class="screen screen-results" id="screen-results">
+        <div class="r-inner">
+          <div class="r-score reveal reveal-1">
+            <span id="r-score">0</span><span class="total"> / 100</span>
+          </div>
+          <div class="r-band reveal reveal-2" id="r-band"></div>
+          <div class="r-actions reveal reveal-3">
+            <a class="gh-link" href="https://github.com/guidewire-oss/fern-platform" target="_blank"
+              rel="noopener">&#9733; guidewire-oss/fern-platform</a>
+          </div>
         </div>
-        <p class="gate-message reveal reveal-3" id="gate-message"></p>
-        <div class="gate-action reveal reveal-4" id="gate-action"></div>
-        <div class="gate-attempts reveal reveal-5" id="gate-attempts"></div>
-      </div>
-    </section>
+      </section>
 
-    <!-- QUESTION -->
-    <section class="screen screen-question" id="screen-question">
-      <div class="q-inner">
-        <div class="q-meta reveal reveal-1">
-          <span class="q-index" id="q-index">01 / 07</span>
-          <span class="difficulty-chip" id="q-chip">EASY</span>
-        </div>
-        <h2 class="q-prompt reveal reveal-2" id="q-prompt"></h2>
-        <div class="q-options reveal reveal-3" id="q-options"></div>
-        <div class="q-actions reveal reveal-4">
-          <button class="btn-primary" id="btn-next" style="display:none;">Next &rarr;</button>
-        </div>
-      </div>
-    </section>
+    </main>
+  </div>
 
-    <!-- RESULTS -->
-    <section class="screen screen-results" id="screen-results">
-      <div class="r-inner">
-        <div class="r-score reveal reveal-1">
-          <span id="r-score">0</span><span class="total"> / 100</span>
-        </div>
-        <div class="r-band reveal reveal-2" id="r-band"></div>
-        <div class="r-actions reveal reveal-3">
-          <a class="gh-link" href="https://github.com/guidewire-oss/fern-platform" target="_blank" rel="noopener">&#9733; guidewire-oss/fern-platform</a>
-        </div>
-      </div>
-    </section>
+  <script>
+    (function () {
+      // ============== QUESTION BANK ==============
+      // Placeholder content — designed for replay variety, not exhaustive coverage.
+      const BANK = [
+        // -------- EASY (10 pts each) --------
+        {
+          id: 'e1', difficulty: 'easy',
+          prompt: 'What programming language is Fern Platform written in?',
+          options: ['Rust', 'Go', 'Python', 'Java'],
+          answer: 1
+        },
+        {
+          id: 'e2', difficulty: 'easy',
+          prompt: 'Which open-source license does Fern Platform use?',
+          options: ['MIT', 'BSD-3-Clause', 'Apache 2.0', 'GPL-3.0'],
+          answer: 2
+        },
+        {
+          id: 'e3', difficulty: 'easy',
+          prompt: 'What HTTP port does the Fern Platform server listen on by default?',
+          options: ['3000', '8080', '8000', '8888'],
+          answer: 1
+        },
+        {
+          id: 'e4', difficulty: 'easy',
+          prompt: 'Which database backs Fern Platform in production?',
+          options: ['MySQL', 'SQLite', 'PostgreSQL', 'MongoDB'],
+          answer: 2
+        },
+        {
+          id: 'e5', difficulty: 'easy',
+          prompt: 'Which Go test framework has an official Fern client library?',
+          options: ['testify', 'Ginkgo', 'gocheck', 'go-cmp'],
+          answer: 1
+        },
+        {
+          id: 'e6', difficulty: 'easy',
+          prompt: 'Which company stewards Fern Platform as an open-source project?',
+          options: ['HashiCorp', 'Pivotal', 'Guidewire', 'Cloudflare'],
+          answer: 2
+        },
 
-  </main>
-</div>
+        // -------- MEDIUM (15 pts each) --------
+        {
+          id: 'm1', difficulty: 'medium',
+          prompt: 'Which ORM library does Fern Platform use to talk to PostgreSQL?',
+          options: ['ent', 'sqlc', 'GORM', 'sqlboiler'],
+          answer: 2
+        },
+        {
+          id: 'm2', difficulty: 'medium',
+          prompt: 'Which OAuth provider is wired up by `make deploy-all` for local auth?',
+          options: ['Auth0', 'Dex', 'Keycloak', 'Okta'],
+          answer: 2
+        },
+        {
+          id: 'm3', difficulty: 'medium',
+          prompt: 'Which library generates Fern Platform’s GraphQL server code?',
+          options: ['gqlgen', 'graphql-go', 'graph-gophers', 'Hasura'],
+          answer: 0
+        },
+        {
+          id: 'm4', difficulty: 'medium',
+          prompt: 'Which lightweight Kubernetes distribution does the local dev stack use?',
+          options: ['kind', 'k3d', 'minikube', 'microk8s'],
+          answer: 1
+        },
+        {
+          id: 'm5', difficulty: 'medium',
+          prompt: 'What deployment abstraction sits on top of Kubernetes in Fern Platform?',
+          options: ['Helm', 'Kustomize', 'KubeVela', 'Flux'],
+          answer: 2
+        },
+        {
+          id: 'm6', difficulty: 'medium',
+          prompt: 'Which architecture style organizes the internal/domains/* tree?',
+          options: ['MVC', 'Hexagonal / DDD', 'Layered N-tier', 'Clean monolith'],
+          answer: 1
+        },
 
-<script>
-(function () {
-  // ============== QUESTION BANK ==============
-  // Placeholder content — designed for replay variety, not exhaustive coverage.
-  const BANK = [
-    // -------- EASY (10 pts each) --------
-    { id: 'e1', difficulty: 'easy',
-      prompt: 'What programming language is Fern Platform written in?',
-      options: ['Rust', 'Go', 'Python', 'Java'],
-      answer: 1 },
-    { id: 'e2', difficulty: 'easy',
-      prompt: 'Which open-source license does Fern Platform use?',
-      options: ['MIT', 'BSD-3-Clause', 'Apache 2.0', 'GPL-3.0'],
-      answer: 2 },
-    { id: 'e3', difficulty: 'easy',
-      prompt: 'What HTTP port does the Fern Platform server listen on by default?',
-      options: ['3000', '8080', '8000', '8888'],
-      answer: 1 },
-    { id: 'e4', difficulty: 'easy',
-      prompt: 'Which database backs Fern Platform in production?',
-      options: ['MySQL', 'SQLite', 'PostgreSQL', 'MongoDB'],
-      answer: 2 },
-    { id: 'e5', difficulty: 'easy',
-      prompt: 'Which Go test framework has an official Fern client library?',
-      options: ['testify', 'Ginkgo', 'gocheck', 'go-cmp'],
-      answer: 1 },
-    { id: 'e6', difficulty: 'easy',
-      prompt: 'Which company stewards Fern Platform as an open-source project?',
-      options: ['HashiCorp', 'Pivotal', 'Guidewire', 'Cloudflare'],
-      answer: 2 },
+        // -------- HARD (25 pts each) --------
+        {
+          id: 'h1', difficulty: 'hard',
+          prompt: 'Which pattern does the GraphQL layer use to dodge N+1 query storms?',
+          options: ['Aggressive caching', 'DataLoader', 'Eager joins', 'Persisted queries'],
+          answer: 1
+        },
+        {
+          id: 'h2', difficulty: 'hard',
+          prompt: 'What pipeline orchestrator runs the CI workflows for Fern Platform?',
+          options: ['Tekton', 'Drone', 'Dagger', 'Argo Workflows'],
+          answer: 2
+        },
+        {
+          id: 'h3', difficulty: 'hard',
+          prompt: 'Which PostgreSQL operator does the local KubeVela stack install?',
+          options: ['Zalando Postgres Operator', 'Crunchy Data PGO', 'CloudNativePG (CNPG)', 'Stolon'],
+          answer: 2
+        },
+        {
+          id: 'h4', difficulty: 'hard',
+          prompt: 'Which migration library applies the SQL files at server startup?',
+          options: ['goose', 'golang-migrate', 'Atlas', 'Flyway'],
+          answer: 1
+        },
 
-    // -------- MEDIUM (15 pts each) --------
-    { id: 'm1', difficulty: 'medium',
-      prompt: 'Which ORM library does Fern Platform use to talk to PostgreSQL?',
-      options: ['ent', 'sqlc', 'GORM', 'sqlboiler'],
-      answer: 2 },
-    { id: 'm2', difficulty: 'medium',
-      prompt: 'Which OAuth provider is wired up by `make deploy-all` for local auth?',
-      options: ['Auth0', 'Dex', 'Keycloak', 'Okta'],
-      answer: 2 },
-    { id: 'm3', difficulty: 'medium',
-      prompt: 'Which library generates Fern Platform’s GraphQL server code?',
-      options: ['gqlgen', 'graphql-go', 'graph-gophers', 'Hasura'],
-      answer: 0 },
-    { id: 'm4', difficulty: 'medium',
-      prompt: 'Which lightweight Kubernetes distribution does the local dev stack use?',
-      options: ['kind', 'k3d', 'minikube', 'microk8s'],
-      answer: 1 },
-    { id: 'm5', difficulty: 'medium',
-      prompt: 'What deployment abstraction sits on top of Kubernetes in Fern Platform?',
-      options: ['Helm', 'Kustomize', 'KubeVela', 'Flux'],
-      answer: 2 },
-    { id: 'm6', difficulty: 'medium',
-      prompt: 'Which architecture style organizes the internal/domains/* tree?',
-      options: ['MVC', 'Hexagonal / DDD', 'Layered N-tier', 'Clean monolith'],
-      answer: 1 },
+        // -------- PRODUCT — EASY (10 pts each) --------
+        {
+          id: 'ep1', difficulty: 'easy',
+          prompt: 'Who is Fern Platform built for?',
+          options: [
+            'Solo hobbyists debugging unit tests on their laptop',
+            'Engineering teams who want unified visibility into test results across CI pipelines, frameworks, and projects',
+            'Marketing teams tracking website analytics',
+            'Database administrators'
+          ],
+          answer: 1
+        },
+        {
+          id: 'ep4', difficulty: 'easy',
+          prompt: 'In the Treemap view, what does the size of a tile represent?',
+          options: [
+            'The number of tests in that suite',
+            'The pass rate',
+            'The number of failures',
+            'The build duration'
+          ],
+          answer: 0
+        },
+        {
+          id: 'ep5', difficulty: 'easy',
+          prompt: 'Which test frameworks have first-class, dedicated Fern client libraries today?',
+          options: [
+            'Pytest, Mocha, Cypress',
+            'Ginkgo, JUnit, Jest',
+            'RSpec, Karma, NUnit',
+            'Only Ginkgo — everything else uses raw HTTP'
+          ],
+          answer: 1
+        },
+        {
+          id: 'ep6', difficulty: 'easy',
+          prompt: 'Which issue-tracker integration ships in Fern Platform today?',
+          options: ['Linear', 'Asana', 'GitHub Issues', 'JIRA'],
+          answer: 3
+        },
 
-    // -------- HARD (25 pts each) --------
-    { id: 'h1', difficulty: 'hard',
-      prompt: 'Which pattern does the GraphQL layer use to dodge N+1 query storms?',
-      options: ['Aggressive caching', 'DataLoader', 'Eager joins', 'Persisted queries'],
-      answer: 1 },
-    { id: 'h2', difficulty: 'hard',
-      prompt: 'What pipeline orchestrator runs the CI workflows for Fern Platform?',
-      options: ['Tekton', 'Drone', 'Dagger', 'Argo Workflows'],
-      answer: 2 },
-    { id: 'h3', difficulty: 'hard',
-      prompt: 'Which PostgreSQL operator does the local KubeVela stack install?',
-      options: ['Zalando Postgres Operator', 'Crunchy Data PGO', 'CloudNativePG (CNPG)', 'Stolon'],
-      answer: 2 },
-    { id: 'h4', difficulty: 'hard',
-      prompt: 'Which migration library applies the SQL files at server startup?',
-      options: ['goose', 'golang-migrate', 'Atlas', 'Flyway'],
-      answer: 1 },
+        // -------- PRODUCT — MEDIUM (15 pts each) --------
+        {
+          id: 'mp1', difficulty: 'medium',
+          prompt: 'Fern Platform has three user roles. Which of the following is NOT one of them?',
+          options: ['Admin', 'Manager', 'User', 'Owner'],
+          answer: 3
+        },
+        {
+          id: 'mp5', difficulty: 'medium',
+          prompt: 'Which identity providers are supported for sign-in?',
+          options: [
+            'Only Okta',
+            'Only Google Workspace',
+            'Any standard OpenID Connect provider — Keycloak, Okta, Auth0, Google, etc.',
+            'Username and password only'
+          ],
+          answer: 2
+        },
+        {
+          id: 'mp7', difficulty: 'medium',
+          prompt: 'What does "drill-down" mean in the Test Runs view?',
+          options: [
+            'Exporting the run as a PDF',
+            'Comparing two runs side by side',
+            'Navigating from a run → its suites → individual specs, with error messages and stack traces visible at the spec level',
+            'Filtering the list by date range'
+          ],
+          answer: 2
+        },
 
-    // -------- PRODUCT — EASY (10 pts each) --------
-    { id: 'ep1', difficulty: 'easy',
-      prompt: 'Who is Fern Platform built for?',
-      options: [
-        'Solo hobbyists debugging unit tests on their laptop',
-        'Engineering teams who want unified visibility into test results across CI pipelines, frameworks, and projects',
-        'Marketing teams tracking website analytics',
-        'Database administrators'
-      ],
-      answer: 1 },
-    { id: 'ep2', difficulty: 'easy',
-      prompt: 'Fern Platform is a single consolidated product. Which two older components did it replace?',
-      options: [
-        'fern-ui and fern-reporter',
-        'fern-cli and fern-agent',
-        'fern-runner and fern-collector',
-        'fern-jira and fern-ldap'
-      ],
-      answer: 0 },
-    { id: 'ep3', difficulty: 'easy',
-      prompt: 'In the Treemap view, what does the colour of a tile represent?',
-      options: [
-        'The team that owns the suite',
-        'The pass rate (green = healthy, red = failing)',
-        'How long ago the suite last ran',
-        'The number of testers assigned'
-      ],
-      answer: 1 },
-    { id: 'ep4', difficulty: 'easy',
-      prompt: 'In the Treemap view, what does the size of a tile represent?',
-      options: [
-        'The number of tests in that suite',
-        'The pass rate',
-        'The number of failures',
-        'The build duration'
-      ],
-      answer: 0 },
-    { id: 'ep5', difficulty: 'easy',
-      prompt: 'Which test frameworks have first-class, dedicated Fern client libraries today?',
-      options: [
-        'Pytest, Mocha, Cypress',
-        'Ginkgo, JUnit, Jest',
-        'RSpec, Karma, NUnit',
-        'Only Ginkgo — everything else uses raw HTTP'
-      ],
-      answer: 1 },
-    { id: 'ep6', difficulty: 'easy',
-      prompt: 'Which issue-tracker integration ships in Fern Platform today?',
-      options: ['Linear', 'Asana', 'GitHub Issues', 'JIRA'],
-      answer: 3 },
+        // -------- PRODUCT — HARD (25 pts each) --------
+        {
+          id: 'hp1', difficulty: 'hard',
+          prompt: 'Fern’s roadmap calls for AI-powered insights. What is the primary user benefit it aims to deliver?',
+          options: [
+            'Automatically writing new test cases for engineers',
+            'Replacing CI/CD pipelines entirely',
+            'Turning raw test patterns into contextual, actionable recommendations — e.g. "fix this flaky test first"',
+            'Generating marketing reports for the leadership team'
+          ],
+          answer: 2
+        },
+        {
+          id: 'hp2', difficulty: 'hard',
+          prompt: 'The planned requirements-traceability feature is designed to answer which question for an engineering leader before a release?',
+          options: [
+            'How many lines of code did the team write this sprint?',
+            'Which committed product stories (e.g. JIRA tickets) actually have adequate test coverage?',
+            'What is the GitHub star count this week?',
+            'Which developers are on holiday next week?'
+          ],
+          answer: 1
+        },
+        {
+          id: 'hp3', difficulty: 'hard',
+          prompt: 'Which scenario is intentionally OUT of scope for Fern Platform?',
+          options: [
+            'Aggregating and visualizing results from multiple test frameworks',
+            'Replacing your existing test runner (Ginkgo / JUnit / Jest, etc.)',
+            'Linking test runs to git branch and commit context',
+            'Showing flaky-test patterns over time'
+          ],
+          answer: 1
+        },
+        {
+          id: 'hp5', difficulty: 'hard',
+          prompt: 'Rolling Fern out to a 200-engineer org where teams already have ad-hoc dashboards — which capability is most likely to make or break adoption?',
+          options: [
+            'The colour palette of the treemap',
+            'The ability to ingest results from any framework via a generic API, so each team can keep its existing test runner and still appear in one shared view',
+            'The default font size of the dashboard',
+            'Whether the logo animates on the landing page'
+          ],
+          answer: 1
+        },
+      ];
 
-    // -------- PRODUCT — MEDIUM (15 pts each) --------
-    { id: 'mp1', difficulty: 'medium',
-      prompt: 'Fern Platform has three user roles. Which of the following is NOT one of them?',
-      options: ['Admin', 'Manager', 'User', 'Owner'],
-      answer: 3 },
-    { id: 'mp2', difficulty: 'medium',
-      prompt: 'Which role is required to create a new project for a team?',
-      options: [
-        'Any logged-in user',
-        'Manager (within their team)',
-        'Admin only',
-        'Anyone — projects are public'
-      ],
-      answer: 1 },
-    { id: 'mp3', difficulty: 'medium',
-      prompt: 'A user belongs only to team "payments". By default, which projects can they see?',
-      options: [
-        'Every project — Fern is open by default',
-        'Only projects owned by team payments',
-        'Nothing until an admin explicitly grants access',
-        'Only their personal projects'
-      ],
-      answer: 1 },
-    { id: 'mp4', difficulty: 'medium',
-      prompt: 'How does Fern Platform store JIRA credentials?',
-      options: [
-        'In plain text so admins can read them when debugging',
-        'Encrypted at rest, never displayed back to the UI',
-        'In a separate file checked into git',
-        'In environment variables on the user’s laptop'
-      ],
-      answer: 1 },
-    { id: 'mp5', difficulty: 'medium',
-      prompt: 'Which identity providers are supported for sign-in?',
-      options: [
-        'Only Okta',
-        'Only Google Workspace',
-        'Any standard OpenID Connect provider — Keycloak, Okta, Auth0, Google, etc.',
-        'Username and password only'
-      ],
-      answer: 2 },
-    { id: 'mp6', difficulty: 'medium',
-      prompt: 'When a test run lands in Fern Platform, which of the following is automatically captured along with the results?',
-      options: [
-        'Just the git branch and commit SHA',
-        'Just the build URL and the actor who triggered the build',
-        'Just the environment label (e.g. ci, staging)',
-        'All of the above — git context, build metadata, and environment'
-      ],
-      answer: 3 },
-    { id: 'mp7', difficulty: 'medium',
-      prompt: 'What does "drill-down" mean in the Test Runs view?',
-      options: [
-        'Exporting the run as a PDF',
-        'Comparing two runs side by side',
-        'Navigating from a run → its suites → individual specs, with error messages and stack traces visible at the spec level',
-        'Filtering the list by date range'
-      ],
-      answer: 2 },
+      const WEIGHT = { easy: 10, medium: 15, hard: 25 };
+      const PICK = { easy: 3, medium: 3, hard: 1 };
 
-    // -------- PRODUCT — HARD (25 pts each) --------
-    { id: 'hp1', difficulty: 'hard',
-      prompt: 'Fern’s roadmap calls for AI-powered insights. What is the primary user benefit it aims to deliver?',
-      options: [
-        'Automatically writing new test cases for engineers',
-        'Replacing CI/CD pipelines entirely',
-        'Turning raw test patterns into contextual, actionable recommendations — e.g. "fix this flaky test first"',
-        'Generating marketing reports for the leadership team'
-      ],
-      answer: 2 },
-    { id: 'hp2', difficulty: 'hard',
-      prompt: 'The planned requirements-traceability feature is designed to answer which question for an engineering leader before a release?',
-      options: [
-        'How many lines of code did the team write this sprint?',
-        'Which committed product stories (e.g. JIRA tickets) actually have adequate test coverage?',
-        'What is the GitHub star count this week?',
-        'Which developers are on holiday next week?'
-      ],
-      answer: 1 },
-    { id: 'hp3', difficulty: 'hard',
-      prompt: 'Which scenario is intentionally OUT of scope for Fern Platform?',
-      options: [
-        'Aggregating and visualizing results from multiple test frameworks',
-        'Replacing your existing test runner (Ginkgo / JUnit / Jest, etc.)',
-        'Linking test runs to git branch and commit context',
-        'Showing flaky-test patterns over time'
-      ],
-      answer: 1 },
-    { id: 'hp4', difficulty: 'hard',
-      prompt: 'Why does Fern’s roadmap emphasise provider-agnostic LLM integration (Claude, OpenAI, local models) rather than locking in one provider?',
-      options: [
-        'To make the demo flashier',
-        'To avoid vendor lock-in, support enterprises with strict data-residency rules, and let teams use the AI tooling they already trust',
-        'Because LLM providers are functionally identical',
-        'Purely to reduce hosting costs'
-      ],
-      answer: 1 },
-    { id: 'hp5', difficulty: 'hard',
-      prompt: 'Rolling Fern out to a 200-engineer org where teams already have ad-hoc dashboards — which capability is most likely to make or break adoption?',
-      options: [
-        'The colour palette of the treemap',
-        'The ability to ingest results from any framework via a generic API, so each team can keep its existing test runner and still appear in one shared view',
-        'The default font size of the dashboard',
-        'Whether the logo animates on the landing page'
-      ],
-      answer: 1 },
-    { id: 'hp6', difficulty: 'hard',
-      prompt: 'Fern Platform claims roughly 5–30× faster page loads versus the older fern-ui. What is the user-visible reason?',
-      options: [
-        'The new product runs on a faster server',
-        'The dashboard loads a small summary first and fetches detailed data only when you drill down — instead of one giant query up-front',
-        'It uses a faster programming language',
-        'It caches everything in the browser indefinitely'
-      ],
-      answer: 1 }
-  ];
+      // ============== RETRY GATE CONFIG ==============
+      const STATE_KEY = 'fern-quiz-state';
+      const MAX_ATTEMPTS = 4;                              // 1 initial + 3 retries
+      const STATE_TTL_MS = 24 * 60 * 60 * 1000;            // 24h
+      const RETRY_WAITS_MS = [30 * 1000, 90 * 1000, 180 * 1000]; // before retry 1/2/3
+      const NUDGES = {
+        1: 'Play fair, friend.',
+        2: 'Be honest about it.',
+        3: 'Last try. The fern is watching.',
+        locked: "You've exhausted all retries. If you really want a goodie anyway, try flattering the booth operator."
+      };
 
-  const WEIGHT = { easy: 10, medium: 15, hard: 25 };
-  const PICK   = { easy: 3,  medium: 3,  hard: 1  };
+      // ============== STATE ==============
+      let round = [];
+      let answers = [];
+      let cursor = 0;
+      let cooldownTickId = null;
 
-  // ============== RETRY GATE CONFIG ==============
-  const STATE_KEY      = 'fern-quiz-state';
-  const MAX_ATTEMPTS   = 4;                              // 1 initial + 3 retries
-  const STATE_TTL_MS   = 24 * 60 * 60 * 1000;            // 24h
-  const RETRY_WAITS_MS = [30 * 1000, 90 * 1000, 180 * 1000]; // before retry 1/2/3
-  const NUDGES = {
-    1: 'Play fair, friend.',
-    2: 'Be honest about it.',
-    3: 'Last try. The fern is watching.',
-    locked: "You've exhausted all retries. If you really want a goodie anyway, try flattering the booth operator."
-  };
-
-  // ============== STATE ==============
-  let round = [];
-  let answers = [];
-  let cursor = 0;
-  let cooldownTickId = null;
-
-  // ============== UTIL ==============
-  function shuffle(arr) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
-    }
-    return a;
-  }
-
-  function pickRound() {
-    const byTier = (t, n) => shuffle(BANK.filter(q => q.difficulty === t)).slice(0, n);
-    const r = [
-      ...byTier('easy',   PICK.easy),
-      ...byTier('medium', PICK.medium),
-      ...byTier('hard',   PICK.hard)
-    ];
-    return shuffle(r);
-  }
-
-  // ============== DOM HELPERS (no innerHTML for dynamic content) ==============
-  function el(tag, className) {
-    const e = document.createElement(tag);
-    if (className) e.className = className;
-    return e;
-  }
-
-  function clear(node) {
-    while (node.firstChild) node.removeChild(node.firstChild);
-  }
-
-  // ============== RETRY GATE STATE ==============
-  function loadGateState() {
-    try {
-      const raw = localStorage.getItem(STATE_KEY);
-      if (!raw) return null;
-      const s = JSON.parse(raw);
-      if (!s || typeof s !== 'object') return null;
-      if (Date.now() - (s.firstPlayedAt || 0) > STATE_TTL_MS) {
-        localStorage.removeItem(STATE_KEY);
-        return null;
+      // ============== UTIL ==============
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+        }
+        return a;
       }
-      return s;
-    } catch (_) {
-      return null;
-    }
-  }
 
-  function saveGateState(s) {
-    try { localStorage.setItem(STATE_KEY, JSON.stringify(s)); }
-    catch (_) { /* localStorage unavailable; gate becomes a no-op */ }
-  }
-
-  function recordCompletedAttempt(score) {
-    const prev = loadGateState();
-    const attempts = ((prev && prev.attempts) || 0) + 1;
-    const waitIdx = attempts - 1;
-    const wait = (attempts < MAX_ATTEMPTS && waitIdx < RETRY_WAITS_MS.length)
-      ? RETRY_WAITS_MS[waitIdx] : null;
-    const next = {
-      attempts: attempts,
-      lastScore: score,
-      firstPlayedAt: (prev && prev.firstPlayedAt) || Date.now(),
-      nextAllowedAt: wait ? Date.now() + wait : null
-    };
-    saveGateState(next);
-    return next;
-  }
-
-  function gateStatus() {
-    const s = loadGateState();
-    if (!s) return { kind: 'fresh' };
-    if (s.attempts >= MAX_ATTEMPTS) return { kind: 'locked', state: s };
-    const now = Date.now();
-    if (s.nextAllowedAt && now < s.nextAllowedAt) {
-      return { kind: 'cooldown', state: s, remaining: s.nextAllowedAt - now };
-    }
-    return { kind: 'ready', state: s };
-  }
-
-  function formatRemaining(ms) {
-    const total = Math.max(0, Math.ceil(ms / 1000));
-    const m = Math.floor(total / 60);
-    const s = total % 60;
-    return m + ':' + String(s).padStart(2, '0');
-  }
-
-  function clearCooldownTick() {
-    if (cooldownTickId !== null) {
-      clearInterval(cooldownTickId);
-      cooldownTickId = null;
-    }
-  }
-
-  // ============== SCREEN MANAGEMENT ==============
-  const screens = {
-    start:    document.getElementById('screen-start'),
-    gate:     document.getElementById('screen-gate'),
-    question: document.getElementById('screen-question'),
-    results:  document.getElementById('screen-results')
-  };
-
-  function showScreen(name) {
-    if (name !== 'gate') clearCooldownTick();
-    Object.entries(screens).forEach(([n, e]) => {
-      e.classList.toggle('active', n === name);
-    });
-  }
-
-  // ============== PROGRESS CHROME ==============
-  const progressFillEl = document.getElementById('progress-fill');
-  const stepCurrentEl  = document.getElementById('step-current');
-  const stepTotalEl    = document.getElementById('step-total');
-  stepTotalEl.textContent = '07';
-
-  function updateProgress(answered) {
-    const total = round.length || 7;
-    const ratio = Math.min(answered / total, 1);
-    progressFillEl.style.transform = 'scaleX(' + ratio + ')';
-    stepCurrentEl.textContent = String(answered).padStart(2, '0');
-  }
-
-  // ============== QUESTION RENDER ==============
-  const qIndexEl   = document.getElementById('q-index');
-  const qChipEl    = document.getElementById('q-chip');
-  const qPromptEl  = document.getElementById('q-prompt');
-  const qOptionsEl = document.getElementById('q-options');
-  const btnNextEl  = document.getElementById('btn-next');
-
-  function buildOption(opt, i, key) {
-    const btn = el('button', 'option');
-    const k = el('span', 'key');
-    k.textContent = key;
-    const lbl = el('span', 'label');
-    lbl.textContent = opt;
-    const g = el('span', 'glyph');
-    btn.appendChild(k);
-    btn.appendChild(lbl);
-    btn.appendChild(g);
-    btn.addEventListener('click', () => onAnswer(i, btn));
-    return btn;
-  }
-
-  function renderQuestion() {
-    const q = round[cursor];
-    qIndexEl.textContent = String(cursor + 1).padStart(2, '0') + ' / 07';
-
-    qChipEl.className = 'difficulty-chip ' + q.difficulty;
-    qChipEl.textContent = q.difficulty;
-
-    qPromptEl.textContent = q.prompt;
-
-    clear(qOptionsEl);
-    const keys = ['A', 'B', 'C', 'D'];
-    q.options.forEach((opt, i) => {
-      qOptionsEl.appendChild(buildOption(opt, i, keys[i]));
-    });
-
-    btnNextEl.style.display = 'none';
-    btnNextEl.textContent = (cursor === round.length - 1) ? 'See score →' : 'Next →';
-
-    // re-trigger reveal on each question
-    screens.question.classList.remove('active');
-    void screens.question.offsetWidth;
-    screens.question.classList.add('active');
-
-    updateProgress(cursor);
-  }
-
-  function onAnswer(picked, btnEl) {
-    const q = round[cursor];
-    const correct = picked === q.answer;
-    answers[cursor] = { picked: picked, correct: correct };
-
-    const optBtns = qOptionsEl.querySelectorAll('.option');
-    optBtns.forEach((b, i) => {
-      b.disabled = true;
-      const glyph = b.querySelector('.glyph');
-      if (i === q.answer) {
-        b.classList.add('correct');
-        glyph.textContent = '✓';
-      } else if (i === picked && !correct) {
-        b.classList.add('wrong');
-        glyph.textContent = '✕';
+      function pickRound() {
+        const byTier = (t, n) => shuffle(BANK.filter(q => q.difficulty === t)).slice(0, n);
+        const r = [
+          ...byTier('easy', PICK.easy),
+          ...byTier('medium', PICK.medium),
+          ...byTier('hard', PICK.hard)
+        ];
+        return shuffle(r);
       }
-    });
 
-    btnNextEl.style.display = 'inline-block';
-    updateProgress(cursor + 1);
-  }
+      // ============== DOM HELPERS (no innerHTML for dynamic content) ==============
+      function el(tag, className) {
+        const e = document.createElement(tag);
+        if (className) e.className = className;
+        return e;
+      }
 
-  btnNextEl.addEventListener('click', () => {
-    cursor += 1;
-    if (cursor >= round.length) {
-      showResults();
-    } else {
-      renderQuestion();
-    }
-  });
+      function clear(node) {
+        while (node.firstChild) node.removeChild(node.firstChild);
+      }
 
-  // ============== RESULTS ==============
-  const rScoreEl = document.getElementById('r-score');
-  const rBandEl  = document.getElementById('r-band');
+      // ============== RETRY GATE STATE ==============
+      function loadGateState() {
+        try {
+          const raw = localStorage.getItem(STATE_KEY);
+          if (!raw) return null;
+          const s = JSON.parse(raw);
+          if (!s || typeof s !== 'object') return null;
+          if (Date.now() - (s.firstPlayedAt || 0) > STATE_TTL_MS) {
+            localStorage.removeItem(STATE_KEY);
+            return null;
+          }
+          return s;
+        } catch (_) {
+          return null;
+        }
+      }
 
-  function bandFor(score) {
-    if (score === 100) return 'Perfect score.';
-    if (score >= 70)   return 'Good score.';
-    if (score > 0)     return 'Almost there.';
-    return 'Botanically impressive zero.';
-  }
+      function saveGateState(s) {
+        try { localStorage.setItem(STATE_KEY, JSON.stringify(s)); }
+        catch (_) { /* localStorage unavailable; gate becomes a no-op */ }
+      }
 
-  function showResults() {
-    let total = 0;
-    answers.forEach((a, i) => {
-      if (a && a.correct) total += WEIGHT[round[i].difficulty];
-    });
+      function recordCompletedAttempt(score) {
+        const prev = loadGateState();
+        const attempts = ((prev && prev.attempts) || 0) + 1;
+        const waitIdx = attempts - 1;
+        const wait = (attempts < MAX_ATTEMPTS && waitIdx < RETRY_WAITS_MS.length)
+          ? RETRY_WAITS_MS[waitIdx] : null;
+        const next = {
+          attempts: attempts,
+          lastScore: score,
+          firstPlayedAt: (prev && prev.firstPlayedAt) || Date.now(),
+          nextAllowedAt: wait ? Date.now() + wait : null
+        };
+        saveGateState(next);
+        return next;
+      }
 
-    rScoreEl.textContent = String(total);
-    rBandEl.textContent = bandFor(total);
+      function gateStatus() {
+        const s = loadGateState();
+        if (!s) return { kind: 'fresh' };
+        if (s.attempts >= MAX_ATTEMPTS) return { kind: 'locked', state: s };
+        const now = Date.now();
+        if (s.nextAllowedAt && now < s.nextAllowedAt) {
+          return { kind: 'cooldown', state: s, remaining: s.nextAllowedAt - now };
+        }
+        return { kind: 'ready', state: s };
+      }
 
-    recordCompletedAttempt(total);
-    updateProgress(round.length);
-    showScreen('results');
-  }
+      function formatRemaining(ms) {
+        const total = Math.max(0, Math.ceil(ms / 1000));
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        return m + ':' + String(s).padStart(2, '0');
+      }
 
-  // ============== GATE RENDER ==============
-  const gateScoreEl    = document.getElementById('gate-score');
-  const gateMessageEl  = document.getElementById('gate-message');
-  const gateActionEl   = document.getElementById('gate-action');
-  const gateAttemptsEl = document.getElementById('gate-attempts');
+      function clearCooldownTick() {
+        if (cooldownTickId !== null) {
+          clearInterval(cooldownTickId);
+          cooldownTickId = null;
+        }
+      }
 
-  function renderGate() {
-    clearCooldownTick();
-    const status = gateStatus();
-    if (status.kind === 'fresh') {
-      showScreen('start');
-      return;
-    }
+      // ============== SCREEN MANAGEMENT ==============
+      const screens = {
+        start: document.getElementById('screen-start'),
+        gate: document.getElementById('screen-gate'),
+        question: document.getElementById('screen-question'),
+        results: document.getElementById('screen-results')
+      };
 
-    const s = status.state;
-    gateScoreEl.textContent = String(s.lastScore || 0);
+      function showScreen(name) {
+        if (name !== 'gate') clearCooldownTick();
+        Object.entries(screens).forEach(([n, e]) => {
+          e.classList.toggle('active', n === name);
+        });
+      }
 
-    const remainingAttempts = MAX_ATTEMPTS - s.attempts;
-    gateAttemptsEl.textContent = remainingAttempts > 0
-      ? remainingAttempts + (remainingAttempts === 1 ? ' retry left' : ' retries left')
-      : 'no retries left';
+      // ============== PROGRESS CHROME ==============
+      const progressFillEl = document.getElementById('progress-fill');
+      const stepCurrentEl = document.getElementById('step-current');
+      const stepTotalEl = document.getElementById('step-total');
+      stepTotalEl.textContent = '07';
 
-    clear(gateActionEl);
-    gateMessageEl.classList.remove('locked');
+      function updateProgress(answered) {
+        const total = round.length || 7;
+        const ratio = Math.min(answered / total, 1);
+        progressFillEl.style.transform = 'scaleX(' + ratio + ')';
+        stepCurrentEl.textContent = String(answered).padStart(2, '0');
+      }
 
-    if (status.kind === 'locked') {
-      gateMessageEl.textContent = NUDGES.locked;
-      gateMessageEl.classList.add('locked');
-    } else if (status.kind === 'cooldown') {
-      gateMessageEl.textContent = NUDGES[s.attempts] || NUDGES[1];
+      // ============== QUESTION RENDER ==============
+      const qIndexEl = document.getElementById('q-index');
+      const qChipEl = document.getElementById('q-chip');
+      const qPromptEl = document.getElementById('q-prompt');
+      const qOptionsEl = document.getElementById('q-options');
+      const btnNextEl = document.getElementById('btn-next');
 
-      const cd = el('div', 'gate-countdown');
-      const lbl = document.createTextNode('Try again in');
-      const time = el('span', 'time');
-      time.textContent = formatRemaining(status.remaining);
-      cd.appendChild(lbl);
-      cd.appendChild(time);
-      gateActionEl.appendChild(cd);
+      function buildOption(opt, i, key) {
+        const btn = el('button', 'option');
+        const k = el('span', 'key');
+        k.textContent = key;
+        const lbl = el('span', 'label');
+        lbl.textContent = opt;
+        const g = el('span', 'glyph');
+        btn.appendChild(k);
+        btn.appendChild(lbl);
+        btn.appendChild(g);
+        btn.addEventListener('click', () => onAnswer(i, btn));
+        return btn;
+      }
 
-      cooldownTickId = setInterval(() => {
-        const left = (s.nextAllowedAt || 0) - Date.now();
-        if (left <= 0) {
-          renderGate(); // promotes to 'ready' and re-renders
+      function renderQuestion() {
+        const q = round[cursor];
+        qIndexEl.textContent = String(cursor + 1).padStart(2, '0') + ' / 07';
+
+        qChipEl.className = 'difficulty-chip ' + q.difficulty;
+        qChipEl.textContent = q.difficulty;
+
+        qPromptEl.textContent = q.prompt;
+
+        clear(qOptionsEl);
+        const keys = ['A', 'B', 'C', 'D'];
+        q.options.forEach((opt, i) => {
+          qOptionsEl.appendChild(buildOption(opt, i, keys[i]));
+        });
+
+        btnNextEl.style.display = 'none';
+        btnNextEl.textContent = (cursor === round.length - 1) ? 'See score →' : 'Next →';
+
+        // re-trigger reveal on each question
+        screens.question.classList.remove('active');
+        void screens.question.offsetWidth;
+        screens.question.classList.add('active');
+
+        updateProgress(cursor);
+      }
+
+      function onAnswer(picked, btnEl) {
+        const q = round[cursor];
+        const correct = picked === q.answer;
+        answers[cursor] = { picked: picked, correct: correct };
+
+        const optBtns = qOptionsEl.querySelectorAll('.option');
+        optBtns.forEach((b, i) => {
+          b.disabled = true;
+          const glyph = b.querySelector('.glyph');
+          if (i === q.answer) {
+            b.classList.add('correct');
+            glyph.textContent = '✓';
+          } else if (i === picked && !correct) {
+            b.classList.add('wrong');
+            glyph.textContent = '✕';
+          }
+        });
+
+        btnNextEl.style.display = 'inline-block';
+        updateProgress(cursor + 1);
+      }
+
+      btnNextEl.addEventListener('click', () => {
+        cursor += 1;
+        if (cursor >= round.length) {
+          showResults();
+        } else {
+          renderQuestion();
+        }
+      });
+
+      // ============== RESULTS ==============
+      const rScoreEl = document.getElementById('r-score');
+      const rBandEl = document.getElementById('r-band');
+
+      function bandFor(score) {
+        if (score === 100) return 'Perfect score.';
+        if (score >= 70) return 'Good score.';
+        if (score > 0) return 'Almost there.';
+        return 'Botanically impressive zero.';
+      }
+
+      function showResults() {
+        let total = 0;
+        answers.forEach((a, i) => {
+          if (a && a.correct) total += WEIGHT[round[i].difficulty];
+        });
+
+        rScoreEl.textContent = String(total);
+        rBandEl.textContent = bandFor(total);
+
+        recordCompletedAttempt(total);
+        updateProgress(round.length);
+        showScreen('results');
+      }
+
+      // ============== GATE RENDER ==============
+      const gateScoreEl = document.getElementById('gate-score');
+      const gateMessageEl = document.getElementById('gate-message');
+      const gateActionEl = document.getElementById('gate-action');
+      const gateAttemptsEl = document.getElementById('gate-attempts');
+
+      function renderGate() {
+        clearCooldownTick();
+        const status = gateStatus();
+        if (status.kind === 'fresh') {
+          showScreen('start');
           return;
         }
-        time.textContent = formatRemaining(left);
-      }, 1000);
-    } else { // ready
-      gateMessageEl.textContent = NUDGES[s.attempts] || NUDGES[1];
-      const btn = el('button', 'btn-primary');
-      btn.id = 'btn-gate-retry';
-      btn.textContent = 'Try again →';
-      btn.addEventListener('click', () => {
-        const fresh = gateStatus();
-        if (fresh.kind === 'ready' || fresh.kind === 'fresh') startRound();
+
+        const s = status.state;
+        gateScoreEl.textContent = String(s.lastScore || 0);
+
+        const remainingAttempts = MAX_ATTEMPTS - s.attempts;
+        gateAttemptsEl.textContent = remainingAttempts > 0
+          ? remainingAttempts + (remainingAttempts === 1 ? ' retry left' : ' retries left')
+          : 'no retries left';
+
+        clear(gateActionEl);
+        gateMessageEl.classList.remove('locked');
+
+        if (status.kind === 'locked') {
+          gateMessageEl.textContent = NUDGES.locked;
+          gateMessageEl.classList.add('locked');
+        } else if (status.kind === 'cooldown') {
+          gateMessageEl.textContent = NUDGES[s.attempts] || NUDGES[1];
+
+          const cd = el('div', 'gate-countdown');
+          const lbl = document.createTextNode('Try again in');
+          const time = el('span', 'time');
+          time.textContent = formatRemaining(status.remaining);
+          cd.appendChild(lbl);
+          cd.appendChild(time);
+          gateActionEl.appendChild(cd);
+
+          cooldownTickId = setInterval(() => {
+            const left = (s.nextAllowedAt || 0) - Date.now();
+            if (left <= 0) {
+              renderGate(); // promotes to 'ready' and re-renders
+              return;
+            }
+            time.textContent = formatRemaining(left);
+          }, 1000);
+        } else { // ready
+          gateMessageEl.textContent = NUDGES[s.attempts] || NUDGES[1];
+          const btn = el('button', 'btn-primary');
+          btn.id = 'btn-gate-retry';
+          btn.textContent = 'Try again →';
+          btn.addEventListener('click', () => {
+            const fresh = gateStatus();
+            if (fresh.kind === 'ready' || fresh.kind === 'fresh') startRound();
+            else renderGate();
+          });
+          gateActionEl.appendChild(btn);
+        }
+
+        showScreen('gate');
+      }
+
+      // ============== START / RESET ==============
+      function startRound() {
+        round = pickRound();
+        answers = new Array(round.length).fill(null);
+        cursor = 0;
+        updateProgress(0);
+        showScreen('question');
+        renderQuestion();
+      }
+
+      function beginOrGate() {
+        if (gateStatus().kind === 'fresh') startRound();
         else renderGate();
+      }
+
+      document.getElementById('btn-begin').addEventListener('click', beginOrGate);
+
+      // On initial load: if state already exists, show gate instead of start
+      if (gateStatus().kind !== 'fresh') {
+        renderGate();
+      }
+
+      // Keyboard shortcuts: 1-4 to pick, Enter for Next
+      document.addEventListener('keydown', (e) => {
+        if (!screens.question.classList.contains('active')) return;
+        if (e.key === 'Enter' && btnNextEl.style.display !== 'none') {
+          btnNextEl.click();
+          return;
+        }
+        const map = { '1': 0, '2': 1, '3': 2, '4': 3 };
+        if (Object.prototype.hasOwnProperty.call(map, e.key)) {
+          const optBtns = qOptionsEl.querySelectorAll('.option');
+          const target = optBtns[map[e.key]];
+          if (target && !target.disabled) target.click();
+        }
       });
-      gateActionEl.appendChild(btn);
-    }
 
-    showScreen('gate');
-  }
-
-  // ============== START / RESET ==============
-  function startRound() {
-    round = pickRound();
-    answers = new Array(round.length).fill(null);
-    cursor = 0;
-    updateProgress(0);
-    showScreen('question');
-    renderQuestion();
-  }
-
-  function beginOrGate() {
-    if (gateStatus().kind === 'fresh') startRound();
-    else renderGate();
-  }
-
-  document.getElementById('btn-begin').addEventListener('click', beginOrGate);
-
-  // On initial load: if state already exists, show gate instead of start
-  if (gateStatus().kind !== 'fresh') {
-    renderGate();
-  }
-
-  // Keyboard shortcuts: 1-4 to pick, Enter for Next
-  document.addEventListener('keydown', (e) => {
-    if (!screens.question.classList.contains('active')) return;
-    if (e.key === 'Enter' && btnNextEl.style.display !== 'none') {
-      btnNextEl.click();
-      return;
-    }
-    const map = { '1': 0, '2': 1, '3': 2, '4': 3 };
-    if (Object.prototype.hasOwnProperty.call(map, e.key)) {
-      const optBtns = qOptionsEl.querySelectorAll('.option');
-      const target = optBtns[map[e.key]];
-      if (target && !target.disabled) target.click();
-    }
-  });
-
-  // Sanity check on bank
-  const counts = { easy: 0, medium: 0, hard: 0 };
-  BANK.forEach(q => counts[q.difficulty]++);
-  if (counts.easy < PICK.easy || counts.medium < PICK.medium || counts.hard < PICK.hard) {
-    console.error('Bank lacks enough questions per tier', counts);
-  }
-})();
-</script>
+      // Sanity check on bank
+      const counts = { easy: 0, medium: 0, hard: 0 };
+      BANK.forEach(q => counts[q.difficulty]++);
+      if (counts.easy < PICK.easy || counts.medium < PICK.medium || counts.hard < PICK.hard) {
+        console.error('Bank lacks enough questions per tier', counts);
+      }
+    })();
+  </script>
 </body>
+
 </html>
