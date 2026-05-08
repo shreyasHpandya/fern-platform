@@ -649,15 +649,8 @@
     border-radius: 2px;
   }
 
-  /* ============== SLIDE 7: VISION (AI) ============== */
-  .slide-vision {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: center;
-  }
-
-  /* Prominent "Coming Soon" pill — replaces the easy-to-miss eyebrow */
+  /* ============== SHARED: ROADMAP PILL + DESCRIPTOR ============== */
+  /* Used by the AI Insights slide (was also slide-vision, now retired). */
   .vision-tag {
     display: inline-flex;
     align-items: center;
@@ -690,12 +683,6 @@
     50%      { opacity: 0.7; box-shadow: 0 0 0 10px rgba(212, 166, 74, 0); }
   }
 
-  .vision-title {
-    font-size: clamp(56px, 6.5vw, 100px);
-    margin-bottom: 36px;
-    line-height: 0.92;
-  }
-
   .vision-quote {
     font-family: var(--serif);
     font-style: italic;
@@ -708,48 +695,7 @@
     max-width: 540px;
   }
 
-  .future-list {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .future-item {
-    display: grid;
-    grid-template-columns: 60px 1fr;
-    gap: 24px;
-    padding: 24px 0;
-    border-bottom: 1px solid var(--line);
-    align-items: start;
-  }
-
-  .future-icon {
-    width: 48px; height: 48px;
-    color: var(--gold);
-    border: 1px solid var(--gold);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--serif);
-    font-size: 20px;
-    font-style: italic;
-    font-weight: 400;
-  }
-
-  .future-item .heading {
-    font-family: var(--serif);
-    font-size: 24px;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    margin-bottom: 6px;
-  }
-
-  .future-item .body {
-    font-size: 15px;
-    line-height: 1.5;
-    color: rgba(244, 239, 230, 0.65);
-  }
-
-  /* ============== SLIDE 8: AI TEST-FAILURE INSIGHTS (deep-dive) ============== */
+  /* ============== SLIDE 7: AI INSIGHTS (deep-dive) ============== */
   .slide-insights {
     display: grid;
     grid-template-columns: 1fr 1.35fr;
@@ -916,7 +862,7 @@
   .insight-card.top-roi  .insight-roi { color: var(--gold);        background: rgba(212, 166, 74, 0.14); }
   .insight-card.quick    .insight-roi { color: var(--moss-bright); background: rgba(109, 212, 154, 0.14); }
 
-  /* ============== SLIDE 9: CTA / WRAP ============== */
+  /* ============== SLIDE 8: CTA / WRAP ============== */
   .slide-cta {
     display: grid;
     grid-template-columns: 1.4fr 1fr;
@@ -1417,55 +1363,12 @@
       </div>
     </section>
 
-    <!-- ============== SLIDE 7: VISION (AI) ============== -->
-    <section class="slide slide-vision" data-duration="9000">
-      <div>
-        <div class="vision-tag reveal reveal-1">Coming Soon &middot; Roadmap</div>
-        <h2 class="display vision-title reveal reveal-2">
-          AI that <span class="accent">predicts</span><br>failures before<br>they happen.
-        </h2>
-        <p class="vision-quote reveal reveal-3">
-          We're building toward an intelligence system that doesn't just report failures — it explains them, predicts them, and prevents them.
-        </p>
-      </div>
-      <div class="future-list">
-        <div class="future-item reveal reveal-2">
-          <div class="future-icon">i</div>
-          <div>
-            <div class="heading">Automatic root cause analysis</div>
-            <div class="body">LLM-powered explanations of why tests failed and what to fix first.</div>
-          </div>
-        </div>
-        <div class="future-item reveal reveal-3">
-          <div class="future-icon">∞</div>
-          <div>
-            <div class="heading">Predictive failure detection</div>
-            <div class="body">Surface tests likely to break next — before the next pull request lands.</div>
-          </div>
-        </div>
-        <div class="future-item reveal reveal-4">
-          <div class="future-icon">⊳</div>
-          <div>
-            <div class="heading">Smart test selection</div>
-            <div class="body">Run only what matters for each change. Faster CI without losing coverage.</div>
-          </div>
-        </div>
-        <div class="future-item reveal reveal-5">
-          <div class="future-icon">?</div>
-          <div>
-            <div class="heading">Natural language queries</div>
-            <div class="body">"Why did the auth tests fail last week?" — and get a real answer.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== SLIDE 8: AI TEST-FAILURE INSIGHTS (deep-dive) ============== -->
+    <!-- ============== SLIDE 7: AI INSIGHTS (sole roadmap slide) ============== -->
     <section class="slide slide-insights" data-duration="11000">
       <div>
-        <div class="vision-tag reveal reveal-1">Coming Soon &middot; AI Insights</div>
+        <div class="vision-tag reveal reveal-1">Coming Soon &middot; Roadmap</div>
         <h2 class="display insights-title reveal reveal-2">
-          Fix what<br><em>hurts</em><br>most.
+          AI<br><em>Insights.</em>
         </h2>
         <p class="vision-quote reveal reveal-3">
           Fern weighs every flake, retry, and minute lost &mdash; then ranks the fixes that recover the most CI time per hour invested. No more guessing where to start.
@@ -1532,7 +1435,7 @@
       </div>
     </section>
 
-    <!-- ============== SLIDE 9: CTA ============== -->
+    <!-- ============== SLIDE 8: CTA ============== -->
     <section class="slide slide-cta" data-duration="9000">
       <div>
         <div class="cta-eyebrow eyebrow reveal reveal-1">CONTRIBUTE &middot; APACHE 2.0 &middot; OPEN SOURCE</div>
