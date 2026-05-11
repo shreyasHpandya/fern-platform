@@ -695,7 +695,7 @@
     max-width: 540px;
   }
 
-  /* ============== SLIDE 6: AI INSIGHTS (deep-dive) ============== */
+  /* ============== SLIDE 7: AI INSIGHTS (deep-dive) ============== */
   .slide-insights {
     display: grid;
     grid-template-columns: 1fr 1.35fr;
@@ -862,7 +862,7 @@
   .insight-card.top-roi  .insight-roi { color: var(--gold);        background: rgba(212, 166, 74, 0.14); }
   .insight-card.quick    .insight-roi { color: var(--moss-bright); background: rgba(109, 212, 154, 0.14); }
 
-  /* ============== SLIDE 7: JIRA INTENT COVERAGE (deep-dive) ============== */
+  /* ============== SLIDE 6: JIRA INTENT COVERAGE (deep-dive) ============== */
   .slide-jira {
     display: grid;
     grid-template-columns: 1fr 1.4fr;
@@ -1553,79 +1553,7 @@
       </div>
     </section>
 
-    <!-- ============== SLIDE 6: AI INSIGHTS (roadmap deep-dive) ============== -->
-    <section class="slide slide-insights" data-duration="11000">
-      <div>
-        <div class="vision-tag reveal reveal-1">Coming Soon &middot; Roadmap</div>
-        <h2 class="display insights-title reveal reveal-2">
-          AI<br><em>Insights.</em>
-        </h2>
-        <p class="vision-quote reveal reveal-3">
-          Fern weighs every flake, retry, and minute lost &mdash; then ranks the fixes that recover the most CI time per hour invested. No more guessing where to start.
-        </p>
-      </div>
-
-      <!-- Mock UI: AI insights dashboard -->
-      <div class="insights-mock reveal reveal-4">
-        <div class="insights-mock-header">
-          <span class="ctrl-dot"></span>
-          <span class="ctrl-dot"></span>
-          <span class="ctrl-dot"></span>
-          <span class="ctrl-url">fern-platform.local / insights / auth-service</span>
-        </div>
-        <div class="insights-body">
-
-          <!-- HERO STRIP: total recoverable CI time -->
-          <div class="insights-summary">
-            <div class="ins-summary-value"><span class="num">14</span><span class="unit">hr</span></div>
-            <div class="ins-summary-text">
-              <div class="lbl">Recoverable CI time / week</div>
-              <div class="det">14 unstable tests &middot; 3 actionable fixes &middot; ranked by ROI</div>
-            </div>
-          </div>
-
-          <!-- INSIGHT CARDS -->
-          <div class="insight-cards">
-
-            <!-- Card 1: most unpredictable test -->
-            <div class="insight-card unstable">
-              <div>
-                <div class="insight-tag">Most unpredictable test</div>
-                <div class="insight-title">TestSessionRefresh</div>
-                <div class="insight-meta">14% flake rate &middot; 3.2 hr/wk lost to retries</div>
-                <div class="insight-action">Isolate the wall-clock dependency on token expiry &mdash; the test races real time.</div>
-              </div>
-              <div class="insight-roi">+3.2 hr/wk</div>
-            </div>
-
-            <!-- Card 2: highest-ROI fix -->
-            <div class="insight-card top-roi">
-              <div>
-                <div class="insight-tag">Highest-ROI fix</div>
-                <div class="insight-title">Shared DB fixture in integration suite</div>
-                <div class="insight-meta">68 tests affected &middot; 11 cascading retries last week</div>
-                <div class="insight-action">One change pays back across the suite: replace the shared fixture with per-test transactions.</div>
-              </div>
-              <div class="insight-roi">+8.1 hr/wk</div>
-            </div>
-
-            <!-- Card 3: quick win -->
-            <div class="insight-card quick">
-              <div>
-                <div class="insight-tag">Quick win</div>
-                <div class="insight-title">Hardcoded sleeps in payments tests</div>
-                <div class="insight-meta">6 tests &middot; ~4 min wasted every CI run</div>
-                <div class="insight-action">Swap fixed sleeps for event-driven waits. Small change, immediate payoff.</div>
-              </div>
-              <div class="insight-roi">+2.4 hr/wk</div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== SLIDE 7: JIRA INTENT COVERAGE (roadmap deep-dive) ============== -->
+    <!-- ============== SLIDE 6: JIRA INTENT COVERAGE (roadmap deep-dive) ============== -->
     <section class="slide slide-jira" data-duration="11000">
       <div>
         <div class="vision-tag reveal reveal-1">Coming Soon &middot; Jira Integration</div>
@@ -1708,6 +1636,78 @@
             </div>
           </div>
 
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 7: AI INSIGHTS (roadmap deep-dive) ============== -->
+    <section class="slide slide-insights" data-duration="11000">
+      <div>
+        <div class="vision-tag reveal reveal-1">Coming Soon &middot; Roadmap</div>
+        <h2 class="display insights-title reveal reveal-2">
+          AI<br><em>Insights.</em>
+        </h2>
+        <p class="vision-quote reveal reveal-3">
+          Fern weighs every flake, retry, and minute lost &mdash; then ranks the fixes that recover the most CI time per hour invested. No more guessing where to start.
+        </p>
+      </div>
+
+      <!-- Mock UI: AI insights dashboard -->
+      <div class="insights-mock reveal reveal-4">
+        <div class="insights-mock-header">
+          <span class="ctrl-dot"></span>
+          <span class="ctrl-dot"></span>
+          <span class="ctrl-dot"></span>
+          <span class="ctrl-url">fern-platform.local / insights / auth-service</span>
+        </div>
+        <div class="insights-body">
+
+          <!-- HERO STRIP: total recoverable CI time -->
+          <div class="insights-summary">
+            <div class="ins-summary-value"><span class="num">14</span><span class="unit">hr</span></div>
+            <div class="ins-summary-text">
+              <div class="lbl">Recoverable CI time / week</div>
+              <div class="det">14 unstable tests &middot; 3 actionable fixes &middot; ranked by ROI</div>
+            </div>
+          </div>
+
+          <!-- INSIGHT CARDS -->
+          <div class="insight-cards">
+
+            <!-- Card 1: most unpredictable test -->
+            <div class="insight-card unstable">
+              <div>
+                <div class="insight-tag">Most unpredictable test</div>
+                <div class="insight-title">TestSessionRefresh</div>
+                <div class="insight-meta">14% flake rate &middot; 3.2 hr/wk lost to retries</div>
+                <div class="insight-action">Isolate the wall-clock dependency on token expiry &mdash; the test races real time.</div>
+              </div>
+              <div class="insight-roi">+3.2 hr/wk</div>
+            </div>
+
+            <!-- Card 2: highest-ROI fix -->
+            <div class="insight-card top-roi">
+              <div>
+                <div class="insight-tag">Highest-ROI fix</div>
+                <div class="insight-title">Shared DB fixture in integration suite</div>
+                <div class="insight-meta">68 tests affected &middot; 11 cascading retries last week</div>
+                <div class="insight-action">One change pays back across the suite: replace the shared fixture with per-test transactions.</div>
+              </div>
+              <div class="insight-roi">+8.1 hr/wk</div>
+            </div>
+
+            <!-- Card 3: quick win -->
+            <div class="insight-card quick">
+              <div>
+                <div class="insight-tag">Quick win</div>
+                <div class="insight-title">Hardcoded sleeps in payments tests</div>
+                <div class="insight-meta">6 tests &middot; ~4 min wasted every CI run</div>
+                <div class="insight-action">Swap fixed sleeps for event-driven waits. Small change, immediate payoff.</div>
+              </div>
+              <div class="insight-roi">+2.4 hr/wk</div>
+            </div>
+
+          </div>
         </div>
       </div>
     </section>
