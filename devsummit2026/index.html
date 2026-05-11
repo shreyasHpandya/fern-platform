@@ -509,7 +509,7 @@
     color: rgba(244, 239, 230, 0.65);
   }
 
-  /* ============== SLIDE 5: ARCHITECTURE ============== */
+  /* ============== SLIDE 8: ARCHITECTURE ============== */
   .slide-arch {
     display: grid;
     grid-template-rows: auto 1fr;
@@ -582,7 +582,7 @@
     opacity: 0.5;
   }
 
-  /* ============== SLIDE 6: INTEGRATIONS ============== */
+  /* ============== SLIDE 5: INTEGRATIONS ============== */
   .slide-integrations {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -695,7 +695,7 @@
     max-width: 540px;
   }
 
-  /* ============== SLIDE 7: AI INSIGHTS (deep-dive) ============== */
+  /* ============== SLIDE 6: AI INSIGHTS (deep-dive) ============== */
   .slide-insights {
     display: grid;
     grid-template-columns: 1fr 1.35fr;
@@ -862,7 +862,7 @@
   .insight-card.top-roi  .insight-roi { color: var(--gold);        background: rgba(212, 166, 74, 0.14); }
   .insight-card.quick    .insight-roi { color: var(--moss-bright); background: rgba(109, 212, 154, 0.14); }
 
-  /* ============== SLIDE 8: JIRA INTENT COVERAGE (deep-dive) ============== */
+  /* ============== SLIDE 7: JIRA INTENT COVERAGE (deep-dive) ============== */
   .slide-jira {
     display: grid;
     grid-template-columns: 1fr 1.4fr;
@@ -1498,51 +1498,7 @@
       </div>
     </section>
 
-    <!-- ============== SLIDE 5: ARCHITECTURE ============== -->
-    <section class="slide slide-arch" data-duration="8000">
-      <div>
-        <div class="eyebrow reveal reveal-1">ARCHITECTURE</div>
-        <h2 class="display features-headline reveal reveal-2">
-          Hexagonal. Domain-driven.<br><em>Production-ready.</em>
-        </h2>
-      </div>
-      <div class="arch-diagram">
-        <div class="arch-tier tier-1 reveal reveal-3">
-          <div class="arch-box">
-            <div class="arch-label">Interface</div>
-            <div class="arch-name">Web UI</div>
-          </div>
-          <div class="arch-box">
-            <div class="arch-label">Interface</div>
-            <div class="arch-name">REST API</div>
-          </div>
-          <div class="arch-box">
-            <div class="arch-label">Interface</div>
-            <div class="arch-name">GraphQL API</div>
-          </div>
-        </div>
-        <div class="arch-connector reveal reveal-4"></div>
-        <div class="arch-tier tier-2 reveal reveal-4">
-          <div class="arch-box core">
-            <div class="arch-label">Business Domains</div>
-            <div class="arch-name">Tests · Analytics · Projects · Users</div>
-          </div>
-        </div>
-        <div class="arch-connector reveal reveal-5"></div>
-        <div class="arch-tier tier-3 reveal reveal-5">
-          <div class="arch-box">
-            <div class="arch-label">Storage</div>
-            <div class="arch-name">PostgreSQL</div>
-          </div>
-          <div class="arch-box">
-            <div class="arch-label">Cache</div>
-            <div class="arch-name">Redis</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== SLIDE 6: INTEGRATIONS ============== -->
+    <!-- ============== SLIDE 5: INTEGRATIONS ============== -->
     <section class="slide slide-integrations" data-duration="8000">
       <div>
         <div class="eyebrow reveal reveal-1">INTEGRATE IN MINUTES</div>
@@ -1597,7 +1553,7 @@
       </div>
     </section>
 
-    <!-- ============== SLIDE 7: AI INSIGHTS (sole roadmap slide) ============== -->
+    <!-- ============== SLIDE 6: AI INSIGHTS (roadmap deep-dive) ============== -->
     <section class="slide slide-insights" data-duration="11000">
       <div>
         <div class="vision-tag reveal reveal-1">Coming Soon &middot; Roadmap</div>
@@ -1669,7 +1625,7 @@
       </div>
     </section>
 
-    <!-- ============== SLIDE 8: JIRA INTENT COVERAGE (deep-dive) ============== -->
+    <!-- ============== SLIDE 7: JIRA INTENT COVERAGE (roadmap deep-dive) ============== -->
     <section class="slide slide-jira" data-duration="11000">
       <div>
         <div class="vision-tag reveal reveal-1">Coming Soon &middot; Jira Integration</div>
@@ -1752,6 +1708,50 @@
             </div>
           </div>
 
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SLIDE 8: ARCHITECTURE ============== -->
+    <section class="slide slide-arch" data-duration="8000">
+      <div>
+        <div class="eyebrow reveal reveal-1">ARCHITECTURE</div>
+        <h2 class="display features-headline reveal reveal-2">
+          Hexagonal. Domain-driven.<br><em>Production-ready.</em>
+        </h2>
+      </div>
+      <div class="arch-diagram">
+        <div class="arch-tier tier-1 reveal reveal-3">
+          <div class="arch-box">
+            <div class="arch-label">Interface</div>
+            <div class="arch-name">Web UI</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-label">Interface</div>
+            <div class="arch-name">REST API</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-label">Interface</div>
+            <div class="arch-name">GraphQL API</div>
+          </div>
+        </div>
+        <div class="arch-connector reveal reveal-4"></div>
+        <div class="arch-tier tier-2 reveal reveal-4">
+          <div class="arch-box core">
+            <div class="arch-label">Business Domains</div>
+            <div class="arch-name">Tests · Analytics · Projects · Users</div>
+          </div>
+        </div>
+        <div class="arch-connector reveal reveal-5"></div>
+        <div class="arch-tier tier-3 reveal reveal-5">
+          <div class="arch-box">
+            <div class="arch-label">Storage</div>
+            <div class="arch-name">PostgreSQL</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-label">Cache</div>
+            <div class="arch-name">Redis</div>
+          </div>
         </div>
       </div>
     </section>
